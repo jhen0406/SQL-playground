@@ -1,0 +1,43 @@
+import type { ReactNode } from 'react';
+import { addDay, fromDay, toDay, today, type DayStr } from '../lib/date';
+
+const WEEK = ['日', '一', '二', '三', '四', '五', '六'];
+
+interface Props {
+  /** 該月任一天 */
+  month: DayStr;
+  renderCell: (day: DayStr) => ReactNode;
+  selected?: DayStr | null;
+  onSelect?: (day: DayStr) => void;
+  cellClass?: (day: DayStr) => string;
+}
+
+/** 自製月曆格：週日開始，6 週 × 7 天。 */
+export function MonthCalendar({ month, renderCell, selected, onSelect, cellClass }: Props) {
+  const first = fromDay(month.slice(0, 8) + '01');
+  const start = addDay(toDay(first), -first.getDay());
+  const m = first.getMonth();
+  const t = today();
+  const days: DayStr[] = Array.from({ length: 42 }, (_, i) => addDay(start, i));
+  // 最後一週全在下個月就省略
+  const trimmed = fromDay(days[35]).getMonth() !== m ? days.slice(0, 35) : days;
+  return (
+    <div className="cal">
+      {WEEK.map((w) => (
+        <div key={w} className="cal-wd">
+          {w}
+        </div>
+      ))}
+      {trimmed.map((d) => {
+        const inMonth = fromDay(d).getMonth() === m;
+        const cls = ['cal-cell', inMonth ? '' : 'out', d === t ? 'today' : '', d === selected ? 'sel' : '', cellClass?.(d) ?? ''].join(' ');
+        return (
+          <button key={d} className={cls} onClick={() => onSelect?.(d)} aria-label={d}>
+            <span className="cal-num">{fromDay(d).getDate()}</span>
+            <div className="cal-body">{renderCell(d)}</div>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
