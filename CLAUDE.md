@@ -15,7 +15,7 @@
 
 ```bash
 npm run dev        # vite (5173) + API server (8787)，用 concurrently 同時啟動
-npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 315 個測試
+npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 321 個測試
 npm run build      # tsc --noEmit && vite build
 npm run verify:mysql  # 開發用：在 MySQL 8 上執行每題的 MySQL 寫法並比對（需要 MYSQL_URL）
 ```
