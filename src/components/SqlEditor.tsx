@@ -156,6 +156,8 @@ export function SqlEditor({ value, onChange, onRun, onSubmit, height = 260, read
           renderLineHighlight: 'line',
           padding: { top: 10, bottom: 10 },
           quickSuggestions: { other: true, comments: false, strings: false },
+          // 自動完成、提示等浮動視窗改用 fixed 定位，才不會被外層卡片的 overflow 裁掉
+          fixedOverflowWidgets: true,
         }}
       />
     </div>

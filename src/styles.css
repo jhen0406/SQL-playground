@@ -65,6 +65,7 @@
   --sp-4: 16px;
   --sp-5: 24px;
   --sp-6: 32px;
+  --topbar-h: 68px;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --font: 'Chiron GoRound TC', 'Microsoft JhengHei', 'PingFang TC', system-ui, sans-serif;
   --mono: 'JetBrains Mono', 'Cascadia Code', Consolas, 'Chiron GoRound TC', monospace;
@@ -512,13 +513,13 @@ a.chapter:hover { border-color: var(--primary); text-decoration: none; box-shado
 
 /* ── Playground ── */
 .pg { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: var(--sp-4); align-items: start; margin-top: var(--sp-3); }
-.pg-left { position: sticky; top: var(--sp-4); max-height: calc(100vh - 32px); display: flex; flex-direction: column; padding: var(--sp-4) var(--sp-5); }
+.pg-left { position: sticky; top: calc(var(--topbar-h) + var(--sp-4)); max-height: calc(100vh - var(--topbar-h) - 32px); display: flex; flex-direction: column; padding: var(--sp-4) var(--sp-5); }
 .pg-left-body { overflow-y: auto; padding-right: 6px; flex: 1 1 auto; min-height: 0; }
 /* 標題與分頁列不可被壓縮（overflow-x:auto 會讓 flex 子項目縮到 0 高度） */
 .pg-left > .pg-head, .pg-left > .tabs { flex-shrink: 0; }
 .pg-head { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; margin-bottom: var(--sp-2); }
 .pg-head h3 { margin: 4px 0 0; font-size: 1.2rem; width: 100%; letter-spacing: -0.01em; }
-.pg-right { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; position: sticky; top: var(--sp-4); }
+.pg-right { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; position: sticky; top: calc(var(--topbar-h) + var(--sp-4)); z-index: 21; }
 .pg-editor { padding: 0; overflow: hidden; }
 .pg-toolbar { display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--border); flex-wrap: wrap; background: var(--surface-2); }
 .pg-toolbar { flex-wrap: nowrap; }
@@ -715,7 +716,7 @@ a.problem-row:hover { background: var(--surface-2); text-decoration: none; }
 /* ── Lesson + tables aside ── */
 .lesson-layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--sp-4); align-items: start; }
 .lesson-layout > .lesson { grid-column: 1; grid-row: 1; max-width: none; }
-.lesson-aside { grid-column: 2; grid-row: 1; position: sticky; top: var(--sp-4); max-height: calc(100vh - 32px); overflow-y: auto; }
+.lesson-aside { grid-column: 2; grid-row: 1; position: sticky; top: calc(var(--topbar-h) + var(--sp-4)); max-height: calc(100vh - var(--topbar-h) - 32px); overflow-y: auto; }
 .tables-drawer { padding: var(--sp-3) var(--sp-4); }
 .tables-drawer summary { cursor: pointer; display: flex; align-items: center; gap: var(--sp-2); min-height: 32px; list-style: none; }
 .tables-drawer summary::-webkit-details-marker { display: none; }
