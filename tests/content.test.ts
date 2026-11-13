@@ -5,6 +5,7 @@ import { runInSandbox } from '../src/db/sandbox';
 import { gradeExercise, buildSetup, type Runner } from '../src/grading/grade';
 import { chapters, mastery, drills, drillPatterns, datasets, getDataset } from '../src/content';
 import type { Exercise } from '../src/content/types';
+import { pgOnlyFeatures } from '../src/lib/pgOnly';
 
 let db: PGlite;
 let run: Runner;
@@ -88,6 +89,19 @@ describe('chapter helpers', () => {
 describe('chapter order', () => {
   it('orders are 1..N without gaps', () => {
     expect(chapters.map((c) => c.order)).toEqual(chapters.map((_, i) => i + 1));
+  });
+});
+
+describe('MySQL 寫法', () => {
+  it('用到 PostgreSQL 專屬語法的題目都附 MySQL 寫法', () => {
+    const missing = all
+      .map(({ where, ex }) => ({ where, ex, f: pgOnlyFeatures(ex.solution) }))
+      .filter(({ ex, f }) => f.length > 0 && !ex.mysql && !ex.inputTemplate)
+      .map(({ where, f }) => `${where}：${f.join('、')}`);
+    expect(missing).toEqual([]);
+  });
+  it('有 MySQL 寫法就有差異說明', () => {
+    expect(all.filter(({ ex }) => ex.mysql && !ex.mysqlNote).map(({ where }) => where)).toEqual([]);
   });
 });
 

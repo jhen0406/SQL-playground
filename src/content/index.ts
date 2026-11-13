@@ -7,10 +7,17 @@ import { part3 } from './chapters/part3';
 import { part4 } from './chapters/part4';
 import { part5 } from './chapters/part5';
 import { extraPractice } from './chapters/extraPractice';
+import { mysqlSolutions } from './mysqlSolutions';
 import { masteryProblems } from './mastery/problems';
 import { drillDatasets } from './datasets/drills';
 import { drillPatterns as patterns } from './drills/patterns';
 import { drillProblems } from './drills/problems';
+
+/** 合併 MySQL 寫法（src/content/mysqlSolutions.ts） */
+function withMysql<T extends Exercise>(ex: T): T {
+  const m = mysqlSolutions[ex.id];
+  return m ? { ...ex, mysql: ex.mysql ?? m.mysql, mysqlNote: ex.mysqlNote ?? m.note } : ex;
+}
 
 export const datasets: Record<string, Dataset> = {
   shop,
@@ -22,6 +29,7 @@ export const datasets: Record<string, Dataset> = {
 
 export const chapters: Chapter[] = [...part1, ...part2, ...part3, ...part4, ...part5]
   .map((c) => (extraPractice[c.id] ? { ...c, morePractice: [...(c.morePractice ?? []), ...extraPractice[c.id]] } : c))
+  .map((c) => ({ ...c, practice: withMysql(c.practice), morePractice: c.morePractice?.map(withMysql), review: withMysql(c.review) }))
   .sort((a, b) => a.order - b.order);
 
 export const PART_LABELS: Record<Chapter['part'], string> = {
@@ -30,11 +38,11 @@ export const PART_LABELS: Record<Chapter['part'], string> = {
   leetcode: '第三部：銜接 LeetCode 的進階技巧',
 };
 
-export const mastery: MasteryProblem[] = masteryProblems;
+export const mastery: MasteryProblem[] = masteryProblems.map(withMysql);
 
 /** 題型特訓：題型組與題目（題目依題型組順序排列） */
 export const drillPatterns: DrillPattern[] = patterns;
-export const drills: DrillProblem[] = patterns.flatMap((pt) => drillProblems.filter((p) => p.patternId === pt.id));
+export const drills: DrillProblem[] = patterns.flatMap((pt) => drillProblems.filter((p) => p.patternId === pt.id)).map(withMysql);
 
 export function getDrill(id: string): DrillProblem | undefined {
   return drills.find((p) => p.id === id);

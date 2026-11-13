@@ -49,6 +49,10 @@ export interface Exercise {
    * 平台把它原封不動放進模板的 {{input}} 再執行。solution 存的是標準輸入值。
    */
   inputTemplate?: string;
+  /** MySQL 版標準解（只在寫法和 PostgreSQL 不同時填）；LeetCode 預設用 MySQL */
+  mysql?: string;
+  /** MySQL 寫法的差異說明（一兩句） */
+  mysqlNote?: string;
 }
 
 export interface LessonExample {

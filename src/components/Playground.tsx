@@ -348,7 +348,26 @@ function AiView({ state }: { state: { status: string; text?: string } }) {
   return <Markdown text={state.text ?? ''} className="ai" />;
 }
 
+type Dialect = 'pg' | 'mysql';
+const DIALECT_KEY = 'sqlpg.solutionDialect';
+function readDialect(): Dialect {
+  try {
+    return localStorage.getItem(DIALECT_KEY) === 'mysql' ? 'mysql' : 'pg';
+  } catch {
+    return 'pg';
+  }
+}
+
 function SolutionBox({ exercise, show, canReveal, onReveal, mode }: { exercise: Exercise; show: boolean; canReveal: boolean; onReveal: () => void; mode: PlaygroundMode }) {
+  const [dialect, setDialect] = useState<Dialect>(readDialect);
+  const pickDialect = (d: Dialect) => {
+    setDialect(d);
+    try {
+      localStorage.setItem(DIALECT_KEY, d);
+    } catch {
+      /* 無痕模式等情況存不了，不影響使用 */
+    }
+  };
   if (!show) {
     if (!canReveal) return <p className="muted small solution-locked"><Lock className="ic-sm" aria-hidden /> 參考解答會在你提交後開放。</p>;
     return (
@@ -364,10 +383,24 @@ function SolutionBox({ exercise, show, canReveal, onReveal, mode }: { exercise: 
   }
   return (
     <div className="solution">
-      <h4>{exercise.inputTemplate ? '參考輸入' : '參考解答'}</h4>
-      <pre className="md-code">
-        <code>{exercise.solution}</code>
-      </pre>
+      <div className="solution-head">
+        <h4>{exercise.inputTemplate ? '參考輸入' : '參考解答'}</h4>
+        <div className="seg seg-sm" role="tablist" aria-label="SQL 方言">
+          {(['pg', 'mysql'] as Dialect[]).map((d) => (
+            <button key={d} role="tab" aria-selected={dialect === d} className={dialect === d ? 'on' : ''} onClick={() => pickDialect(d)}>
+              {d === 'pg' ? 'PostgreSQL' : 'MySQL'}
+            </button>
+          ))}
+        </div>
+      </div>
+      {dialect === 'pg' || exercise.mysql ? (
+        <pre className="md-code">
+          <code>{dialect === 'mysql' ? exercise.mysql : exercise.solution}</code>
+        </pre>
+      ) : (
+        <p className="muted small">MySQL 的寫法和 PostgreSQL 相同，可以直接用在 LeetCode。</p>
+      )}
+      {dialect === 'mysql' && exercise.mysqlNote && <p className="small mysql-note">{exercise.mysqlNote}</p>}
       {exercise.explanation && <Markdown text={exercise.explanation} />}
       {exercise.commonMistakes && exercise.commonMistakes.length > 0 && (
         <>
