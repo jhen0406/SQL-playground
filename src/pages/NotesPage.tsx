@@ -31,7 +31,7 @@ export function NotesPage() {
           <label className="notes-search">
             <Search className="ic-sm" aria-hidden />
             <span className="sr-only">搜尋筆記</span>
-            <input className="input" type="search" placeholder="搜尋標記文字或註解" value={q} onChange={(e) => setQ(e.target.value)} />
+            <input className="ui-input" type="search" placeholder="搜尋標記文字或註解" value={q} onChange={(e) => setQ(e.target.value)} />
           </label>
         )}
       </div>
@@ -94,7 +94,7 @@ function NoteItem({ note, showJump }: { note: Note; showJump?: boolean }) {
           }}
         >
           <label className="sr-only" htmlFor={`note-c-${note.id}`}>註解</label>
-          <input id={`note-c-${note.id}`} className="input" autoFocus value={draft} onChange={(e) => setDraft(e.target.value)} maxLength={200} placeholder="寫一句提醒自己的話" />
+          <input id={`note-c-${note.id}`} className="ui-input" autoFocus value={draft} onChange={(e) => setDraft(e.target.value)} maxLength={200} placeholder="寫一句提醒自己的話" />
           <button type="submit" className="btn btn-primary btn-sm btn-icon" aria-label="儲存註解"><Check className="ic-sm" aria-hidden /></button>
           <button type="button" className="btn btn-ghost btn-sm btn-icon" aria-label="取消" onClick={() => { setDraft(note.comment ?? ''); setEditing(false); }}>
             <X className="ic-sm" aria-hidden />

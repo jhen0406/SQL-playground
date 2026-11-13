@@ -88,7 +88,7 @@ export function Layout() {
         <div className="side-foot">{navLink(SETTINGS)}</div>
       </aside>
       {menuOpen && <div className="scrim" onClick={() => setMenuOpen(false)} aria-hidden />}
-      <div className="main">
+      <div className="app-main">
         <header className="topbar">
           <button className="btn btn-ghost btn-icon menu-btn" onClick={() => setMenuOpen(!menuOpen)} aria-label="開啟選單" aria-expanded={menuOpen}>
             <Menu className="ic" aria-hidden />

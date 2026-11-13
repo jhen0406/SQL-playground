@@ -203,7 +203,7 @@ export function Highlighter({ chapterId, step, children }: { chapterId: string; 
               }}
             >
               <label className="sr-only" htmlFor="hl-comment">註解（選填）</label>
-              <input id="hl-comment" className="input" autoFocus placeholder="寫一句提醒自己的話（選填）" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={200} />
+              <input id="hl-comment" className="ui-input" autoFocus placeholder="寫一句提醒自己的話（選填）" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={200} />
               <button type="submit" className="btn btn-primary btn-sm">儲存</button>
               <button type="button" className="btn btn-ghost btn-sm btn-icon" onClick={close} aria-label="取消">
                 <X className="ic-sm" aria-hidden />

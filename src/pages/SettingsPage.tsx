@@ -83,7 +83,7 @@ export function SettingsPage() {
         <h2>複習排程（艾賓浩斯遺忘曲線）</h2>
         <p className="muted small">學完當天為第 1 天。輸入要複習的「第幾天」，以逗號分隔。預設：{DEFAULT_OFFSETS.map((o) => o + 1).join(', ')}</p>
         <div className="row">
-          <input className="input" value={offsetsText} onChange={(e) => setOffsetsText(e.target.value)} aria-label="複習天數" />
+          <input className="ui-input" value={offsetsText} onChange={(e) => setOffsetsText(e.target.value)} aria-label="複習天數" />
           <button className="btn btn-primary" onClick={saveOffsets}>
             儲存
           </button>
@@ -118,7 +118,7 @@ export function SettingsPage() {
         </label>
         <div className="row">
           <span>每天推出題數</span>
-          <select className="input narrow" value={s.dailyCount} onChange={(e) => saveSettings({ dailyCount: Number(e.target.value) })}>
+          <select className="ui-input narrow" value={s.dailyCount} onChange={(e) => saveSettings({ dailyCount: Number(e.target.value) })}>
             {[1, 2, 3, 4, 5].map((n) => (
               <option key={n} value={n}>
                 {n} 題

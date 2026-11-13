@@ -48,6 +48,8 @@ npm run build      # tsc --noEmit && vite build
   - 用 CSS Custom Highlight API 標記文字，不改動 React 管理的 DOM。
   - 位置記成「文字＋第幾次出現」，比對邏輯在 `src/lib/textMatch.ts`。
 - **Monaco**：從本機打包載入，不走 CDN。主題 `sqlpg-dark` / `sqlpg-light` 定義在 `src/components/SqlEditor.tsx`。
+  - **全域 CSS 不要用通用 class 名稱**，例如 `.main`、`.input`、`.center`、`.left`、`.icon`、`.contents`。Monaco 內部也用這些名字。
+  - 之前全域的 `.main` 曾讓自動完成清單的文字消失，所以版面類 class 一律加前綴（`.app-main`、`.ui-input`、`.u-center`）。
 
 ## 設計規範（詳見 `design-system/sql-playground/MASTER.md`）
 

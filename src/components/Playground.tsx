@@ -219,7 +219,7 @@ export function Playground({ exercise, mode, header, extraInfo, onGraded }: Prop
               {running === 'submit' ? '判題中' : '提交'}
             </button>
           </div>
-          {loaded ? <SqlEditor value={sql} onChange={onChange} onRun={doRun} onSubmit={doSubmit} height={280} /> : <div style={{ height: 280 }} className="muted center">載入中…</div>}
+          {loaded ? <SqlEditor value={sql} onChange={onChange} onRun={doRun} onSubmit={doSubmit} height={280} /> : <div style={{ height: 280 }} className="muted u-center">載入中…</div>}
         </div>
 
         <div className="card pg-output">

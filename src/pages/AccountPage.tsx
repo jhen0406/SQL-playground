@@ -128,12 +128,12 @@ function AuthForm() {
       <form onSubmit={submit} className="auth-form">
         <label className="field">
           <span>Email</span>
-          <input className="input" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input className="ui-input" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
         </label>
         <label className="field">
           <span>密碼</span>
           <input
-            className="input"
+            className="ui-input"
             type="password"
             autoComplete={mode === 'in' ? 'current-password' : 'new-password'}
             required
