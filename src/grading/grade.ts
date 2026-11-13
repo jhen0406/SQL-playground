@@ -60,6 +60,7 @@ export async function gradeExercise(run: Runner, ds: Dataset, ex: Exercise, user
     const expected = pick(exp, ex)!;
     const user = pick(usr, ex);
     const cmp = compareResults(user, expected, { orderMatters: ex.orderMatters, strictColumns: ex.strictColumns });
+    if (!cmp.pass && usr.rolledBack) cmp.reason = '你的交易沒有 COMMIT，執行結束時已自動 ROLLBACK，改動都沒有保留。' + (cmp.reason ? ' ' + cmp.reason : '');
     cases.push({ name: v.name, hidden: v.hidden, pass: cmp.pass, compare: cmp, user, expected, durationMs: usr.durationMs });
     if (!cmp.pass) break;
   }

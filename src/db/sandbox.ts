@@ -9,7 +9,15 @@ export interface QueryResult {
 }
 
 export type RunOutput =
-  | { ok: true; result: QueryResult | null; check?: QueryResult; durationMs: number; statements: number }
+  | {
+      ok: true;
+      result: QueryResult | null;
+      check?: QueryResult;
+      durationMs: number;
+      statements: number;
+      /** 使用者開了交易卻沒有 COMMIT：結束時已自動 ROLLBACK（改動不算數） */
+      rolledBack?: boolean;
+    }
   | { ok: false; error: string; durationMs: number };
 
 export interface RunRequest {
@@ -35,9 +43,16 @@ function toResult(r: { rows: unknown[]; fields: { name: string }[]; affectedRows
   };
 }
 
-/** 去掉使用者 SQL 中的交易控制指令，避免打亂沙盒。 */
-function stripTxControl(sql: string): string {
-  return sql.replace(/^\s*(BEGIN|COMMIT|ROLLBACK|START\s+TRANSACTION)\s*;/gim, '');
+/** 目前連線是否停在交易中（BEGIN 後沒有 COMMIT，或交易裡出錯變成 aborted） */
+function inTransaction(db: PGlite): boolean {
+  return (db as unknown as { isInTransaction?: () => boolean }).isInTransaction?.() ?? false;
+}
+
+/** 收掉沒結束的交易，讓下一次執行從乾淨狀態開始 */
+async function closeTransaction(db: PGlite): Promise<boolean> {
+  if (!inTransaction(db)) return false;
+  await db.exec('ROLLBACK;');
+  return true;
 }
 
 /**
@@ -47,11 +62,14 @@ function stripTxControl(sql: string): string {
 export async function runInSandbox(db: PGlite, req: RunRequest): Promise<RunOutput> {
   const maxRows = req.maxRows ?? 1000;
   try {
+    await closeTransaction(db);
     await db.exec(RESET_SQL + req.setupSql);
   } catch (e) {
     return { ok: false, error: '資料集載入失敗（平台錯誤）：' + errMsg(e), durationMs: 0 };
   }
-  const userSql = stripTxControl(req.sql).trim();
+  // 交易指令（BEGIN / COMMIT / ROLLBACK / SAVEPOINT）照常執行；
+  // 結束時若交易還開著（忘了 COMMIT），就自動 ROLLBACK，模擬連線中斷時未提交的改動消失。
+  const userSql = req.sql.trim();
   if (!userSql) return { ok: false, error: '請先輸入 SQL。', durationMs: 0 };
   const t1 = performance.now();
   try {
@@ -69,15 +87,18 @@ export async function runInSandbox(db: PGlite, req: RunRequest): Promise<RunOutp
       const last = results[results.length - 1];
       picked = { columns: [], rows: [], affectedRows: last.affectedRows };
     }
+    const rolledBack = await closeTransaction(db);
     let check: QueryResult | undefined;
     if (req.checkQuery) {
       await db.exec('SET search_path TO sandbox;');
       const c = await db.query(req.checkQuery, [], { rowMode: 'array' });
       check = toResult(c, maxRows);
     }
-    return { ok: true, result: picked, check, durationMs, statements: results.length };
+    return { ok: true, result: picked, check, durationMs, statements: results.length, rolledBack };
   } catch (e) {
-    return { ok: false, error: errMsg(e), durationMs: performance.now() - t1 };
+    const durationMs = performance.now() - t1;
+    const wasInTx = await closeTransaction(db).catch(() => false);
+    return { ok: false, error: errMsg(e) + (wasInTx ? '\n（交易中發生錯誤，整個交易已 ROLLBACK）' : ''), durationMs };
   }
 }
 
@@ -90,6 +111,7 @@ export interface TableInfo {
 
 /** 讀取資料集的表結構與範例資料（給題目左側說明欄）。 */
 export async function describeDataset(db: PGlite, setupSql: string, sampleRows = 50): Promise<TableInfo[]> {
+  await closeTransaction(db);
   await db.exec(RESET_SQL + setupSql);
   const cols = await db.query<{ table_name: string; column_name: string; data_type: string; is_nullable: string }>(
     `SELECT c.table_name, c.column_name, c.data_type, c.is_nullable

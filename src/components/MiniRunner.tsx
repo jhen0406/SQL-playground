@@ -43,7 +43,10 @@ export function MiniRunner({ ds, initialSql, title, explain }: { ds: Dataset; in
       {out && (
         <div className="mini-out">
           {out.ok ? (
-            out.result ? <ResultTable result={out.result} maxHeight={240} /> : <div className="muted small">已執行。</div>
+            <>
+              {out.rolledBack && <div className="alert alert-warn small">交易沒有 COMMIT，執行結束時已自動 ROLLBACK。</div>}
+              {out.result ? <ResultTable result={out.result} maxHeight={240} /> : <div className="muted small">已執行。</div>}
+            </>
           ) : (
             <div className="alert alert-bad mono pre">{out.error}</div>
           )}

@@ -281,6 +281,7 @@ function RunView({ out, running }: { out: RunOutput | null; running: boolean }) 
       <div className="muted small">
         執行成功 · {out.durationMs.toFixed(1)} ms{out.statements > 1 ? ` · ${out.statements} 個指令（顯示最後一個查詢結果）` : ''}
       </div>
+      {out.rolledBack && <div className="alert alert-warn small">交易沒有 COMMIT，執行結束時已自動 ROLLBACK：剛才的改動都不會保留。</div>}
       {out.result ? <ResultTable result={out.result} /> : <div className="muted">沒有結果。</div>}
     </div>
   );
