@@ -25,7 +25,7 @@ CREATE TABLE reviews (
   comment    TEXT
 );
 ~~~
-每個欄位需要**名稱 + 型別**。常用型別：\`INTEGER\`、\`NUMERIC(10,2)\`、\`VARCHAR(n)\`、\`TEXT\`、\`DATE\`、\`TIMESTAMP\`、\`BOOLEAN\`（第 31 章）。
+每個欄位需要**名稱 + 型別**。常用型別：\`INTEGER\`、\`NUMERIC(10,2)\`、\`VARCHAR(n)\`、\`TEXT\`、\`DATE\`、\`TIMESTAMP\`、\`BOOLEAN\`（第 32 章）。
 
 ### 刪除 / 清空
 ~~~sql
@@ -157,7 +157,7 @@ LeetCode 題目開頭的表格說明常寫「(order_id, product_id) is the prima
   },
   {
     id: 'c26',
-    order: 28,
+    order: 29,
     part: 'database',
     title: '索引與自動遞增',
     w3Topics: 'SQL Create Index · SQL Auto Increment',
@@ -219,7 +219,7 @@ INSERT INTO tickets (title) VALUES ('Login bug');  -- ticket_id 自動為 1
   },
   {
     id: 'c27',
-    order: 29,
+    order: 30,
     part: 'database',
     title: '日期 Dates',
     w3Topics: 'SQL Dates',
@@ -281,7 +281,7 @@ SELECT DATE '2024-03-10' - DATE '2024-03-01';        -- 相減得到天數：9
   },
   {
     id: 'c28',
-    order: 30,
+    order: 31,
     part: 'database',
     title: 'VIEW 檢視表',
     w3Topics: 'SQL Views',
@@ -333,7 +333,7 @@ SELECT * FROM product_catalog WHERE price > 20;
   },
   {
     id: 'c29',
-    order: 31,
+    order: 32,
     part: 'database',
     title: '資料型別與型別轉換',
     w3Topics: 'SQL Data Types · CAST',

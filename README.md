@@ -2,7 +2,7 @@
 
 從零基礎到能在 LeetCode 上刷 SQL 題的本機練習平台。
 
-- **入門課程（38 章）**：依照 [w3schools SQL 教學](https://www.w3schools.com/sql/default.asp) 的順序編排，再加上 LeetCode 必備的子查詢、CTE、視窗函數。每章流程：概念說明 → 可執行範例 → 練習題（提交後才公布解答）。
+- **入門課程（40 章）**：依照 [w3schools SQL 教學](https://www.w3schools.com/sql/default.asp) 的順序編排，再加上 LeetCode 必備的子查詢、CTE、視窗函數。每章流程：概念說明 → 可執行範例 → 練習題（提交後才公布解答）。
 - **精熟挑戰（30 題）**：完成全部章節後解鎖。電商營收、顧客回購、商品排行、部門績效、留存分析等商業情境，Easy → Medium → Hard，每天推出新題目。提交後由 Claude 解釋錯誤、展示更好的寫法並比較差異。
 - **LeetCode 式 Playground**：Monaco 編輯器、執行 / 提交、範例測資 + 隱藏測資、輸出差異比對、提示、提交紀錄。
 - **學習紀錄**：日 / 週 / 月範圍，條列式與月曆式瀏覽。

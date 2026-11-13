@@ -6,6 +6,7 @@ import { part2 } from './chapters/part2';
 import { part3 } from './chapters/part3';
 import { part4 } from './chapters/part4';
 import { part5 } from './chapters/part5';
+import { part6 } from './chapters/part6';
 import { extraPractice } from './chapters/extraPractice';
 import { mysqlSolutions } from './mysqlSolutions';
 import { masteryProblems } from './mastery/problems';
@@ -27,7 +28,7 @@ export const datasets: Record<string, Dataset> = {
   ...Object.fromEntries(drillDatasets.map((d) => [d.id, d])),
 };
 
-export const chapters: Chapter[] = [...part1, ...part2, ...part3, ...part4, ...part5]
+export const chapters: Chapter[] = [...part1, ...part2, ...part3, ...part4, ...part5, ...part6]
   .map((c) => (extraPractice[c.id] ? { ...c, morePractice: [...(c.morePractice ?? []), ...extraPractice[c.id]] } : c))
   .map((c) => ({ ...c, practice: withMysql(c.practice), morePractice: c.morePractice?.map(withMysql), review: withMysql(c.review) }))
   .sort((a, b) => a.order - b.order);

@@ -71,6 +71,15 @@ export const mysqlSolutions: Record<string, MysqlVersion> = {
     mysql: "PREPARE find_customer FROM 'SELECT customer_name, city FROM customers WHERE customer_name = ?';\nSET @name = 'Alpine Market';\nEXECUTE find_customer USING @name;",
     note: 'MySQL 的 PREPARE 寫成 PREPARE 名稱 FROM \'SQL 字串\'，參數用 ?，執行時用 EXECUTE … USING @變數。實務上通常由程式語言的 placeholder 處理。',
   },
+  'c39-p2': {
+    mysql: `SELECT c.contact_id, TRIM(j.phone) AS phone
+FROM contacts c
+JOIN JSON_TABLE(
+  CONCAT('["', REPLACE(c.phones, ',', '","'), '"]'),
+  '$[*]' COLUMNS (phone VARCHAR(30) PATH '$')
+) AS j;`,
+    note: 'MySQL 沒有 string_to_array／unnest。常見做法是把字串轉成 JSON 陣列，再用 JSON_TABLE 展開成多列（MySQL 8.0 以後）。',
+  },
   'c27-p2': {
     mysql: 'SELECT order_id, order_date, DATE_ADD(order_date, INTERVAL 7 DAY) AS expected_date FROM orders;',
     note: NOTE.dateAdd,

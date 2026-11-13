@@ -195,7 +195,7 @@ MySQL 沒有這個限制。
   // ─────────────────────────── SQL Injection ───────────────────────────
   {
     id: 'c37',
-    order: 32,
+    order: 33,
     part: 'database',
     title: 'SQL Injection 與參數化查詢',
     w3Topics: 'SQL Injection · Prepared Statements',
@@ -329,7 +329,7 @@ EXECUTE find_user(''' OR ''1''=''1'); -- 只會找名字真的叫「' OR '1'='1�
   // ─────────────────────────── 視窗函數進階 ───────────────────────────
   {
     id: 'c38',
-    order: 37,
+    order: 39,
     part: 'leetcode',
     title: '視窗函數進階：範圍、取值與分組',
     w3Topics: 'FIRST_VALUE · LAST_VALUE · NTH_VALUE · NTILE · ROWS BETWEEN',

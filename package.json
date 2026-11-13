@@ -10,7 +10,8 @@
     "build": "tsc --noEmit && vite build",
     "start": "concurrently -k -n web,api \"vite preview --port 5173\" \"tsx server/index.ts\"",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify:mysql": "tsx scripts/verify-mysql.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "latest",

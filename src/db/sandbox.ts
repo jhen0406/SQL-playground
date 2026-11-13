@@ -1,4 +1,5 @@
 import type { PGlite } from '@electric-sql/pglite';
+import { hasTxControl, splitSql } from './splitSql';
 
 /** 一次查詢的結果（最後一個有回傳欄位的 statement）。 */
 export interface QueryResult {
@@ -48,6 +49,12 @@ function inTransaction(db: PGlite): boolean {
   return (db as unknown as { isInTransaction?: () => boolean }).isInTransaction?.() ?? false;
 }
 
+async function execEach(db: PGlite, sql: string) {
+  const all: Awaited<ReturnType<PGlite['exec']>> = [];
+  for (const stmt of splitSql(sql)) all.push(...(await db.exec(stmt, { rowMode: 'array' })));
+  return all;
+}
+
 /** 收掉沒結束的交易，讓下一次執行從乾淨狀態開始 */
 async function closeTransaction(db: PGlite): Promise<boolean> {
   if (!inTransaction(db)) return false;
@@ -73,7 +80,11 @@ export async function runInSandbox(db: PGlite, req: RunRequest): Promise<RunOutp
   if (!userSql) return { ok: false, error: '請先輸入 SQL。', durationMs: 0 };
   const t1 = performance.now();
   try {
-    const results = await db.exec(userSql, { rowMode: 'array' });
+    // 含交易指令時逐條執行：PostgreSQL 一次送出多條指令會被包成同一個隱含交易，
+    // BEGIN 之前的指令也會被後面的 ROLLBACK 撤回；逐條執行才和一般 SQL 工具一樣各自自動提交。
+    const results = hasTxControl(userSql)
+      ? await execEach(db, userSql)
+      : await db.exec(userSql, { rowMode: 'array' });
     const durationMs = performance.now() - t1;
     // 取最後一個有欄位的結果；若都沒有（純 DML），取最後一個並帶 affectedRows
     let picked: QueryResult | null = null;

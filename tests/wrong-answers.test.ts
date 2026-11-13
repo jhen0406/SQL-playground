@@ -190,6 +190,12 @@ describe('新章節：常見錯誤會被判錯', () => {
     ['c37', 'c37-p4', 'PREPARE 沒用參數', "PREPARE find_customer AS SELECT customer_name, city FROM customers WHERE customer_name = 'Alpine Market';"],
     ['c38', 'c38-p2', 'LAST_VALUE 沒設範圍', "SELECT order_id, order_date, LAST_VALUE(order_id) OVER (PARTITION BY TO_CHAR(order_date, 'YYYY-MM') ORDER BY order_date, order_id) AS last_in_month FROM orders;"],
     ['c38', 'c38-p5', '累計平均', "WITH m AS (SELECT TO_CHAR(order_date, 'YYYY-MM') AS month, COUNT(*) AS order_count FROM orders GROUP BY 1) SELECT month, order_count, ROUND(AVG(order_count) OVER (ORDER BY month), 2) AS moving_avg FROM m ORDER BY month;"],
+    ['c39', 'c39-p', 'COUNT 沒有 DISTINCT', 'SELECT customer_name FROM order_records GROUP BY customer_name HAVING COUNT(customer_city) > 1;'],
+    ['c39', 'c39-p3', '沒有 DISTINCT 違反主鍵', 'CREATE TABLE n_orders (order_id INTEGER PRIMARY KEY, order_date DATE, customer_name VARCHAR(50)); INSERT INTO n_orders SELECT order_id, order_date, customer_name FROM order_records;'],
+    ['c40', 'c40-p', '忘了 COMMIT', 'BEGIN; UPDATE bank_accounts SET balance = balance - 300 WHERE account_id = 1; UPDATE bank_accounts SET balance = balance + 300 WHERE account_id = 2;'],
+    ['c40', 'c40-p', '只扣款沒入帳', 'UPDATE bank_accounts SET balance = balance - 300 WHERE account_id = 1;'],
+    ['c40', 'c40-p2', 'ROLLBACK 整個交易', 'BEGIN; UPDATE bank_accounts SET balance = balance + 100 WHERE account_id = 3; UPDATE bank_accounts SET balance = 0 WHERE account_id = 2; ROLLBACK; COMMIT;'],
+    ['c40', 'c40-p3', '沒寫轉帳紀錄', 'BEGIN; UPDATE bank_accounts SET balance = balance - 200 WHERE account_id = 1; UPDATE bank_accounts SET balance = balance + 100 WHERE account_id IN (2, 3); COMMIT;'],
     ['c38', 'c38-r', 'LAST_VALUE 沒設範圍', 'SELECT first_name, hire_date, FIRST_VALUE(first_name) OVER (ORDER BY hire_date) AS first_hire, LAST_VALUE(first_name) OVER (ORDER BY hire_date) AS last_hire FROM employees;'],
   ];
   for (const [cid, id, why, sql] of cases) {

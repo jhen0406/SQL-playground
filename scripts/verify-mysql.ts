@@ -58,15 +58,17 @@ async function dumpForMysql(pg: PGlite, setupSql: string): Promise<string[]> {
   );
   const out: string[] = [];
   for (const { table_name: t } of tables.rows) {
-    const cols = await pg.query<{ column_name: string; data_type: string; fmt: string }>(
-      `SELECT a.attname AS column_name, format_type(a.atttypid, a.atttypmod) AS fmt, '' AS data_type
-         FROM pg_attribute a WHERE a.attrelid = 'sandbox.${t}'::regclass AND a.attnum > 0 AND NOT a.attisdropped ORDER BY a.attnum`,
+    const cols = await pg.query<{ column_name: string; fmt: string; serial: boolean }>(
+      `SELECT a.attname AS column_name, format_type(a.atttypid, a.atttypmod) AS fmt,
+              COALESCE(pg_get_expr(d.adbin, d.adrelid) LIKE 'nextval(%', false) AS serial
+         FROM pg_attribute a LEFT JOIN pg_attrdef d ON d.adrelid = a.attrelid AND d.adnum = a.attnum
+        WHERE a.attrelid = 'sandbox.${t}'::regclass AND a.attnum > 0 AND NOT a.attisdropped ORDER BY a.attnum`,
     );
     const pk = await pg.query<{ col: string }>(
       `SELECT a.attname AS col FROM pg_index i JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
         WHERE i.indrelid = 'sandbox.${t}'::regclass AND i.indisprimary`,
     );
-    const defs = cols.rows.map((c) => `\`${c.column_name}\` ${mysqlType(c.fmt)}`);
+    const defs = cols.rows.map((c) => `\`${c.column_name}\` ${mysqlType(c.fmt)}${c.serial ? ' AUTO_INCREMENT' : ''}`);
     if (pk.rows.length) defs.push(`PRIMARY KEY (${pk.rows.map((p) => '`' + p.col + '`').join(', ')})`);
     out.push(`CREATE TABLE \`${t}\` (${defs.join(', ')})`);
     const rows = await pg.query<Record<string, unknown>>(`SELECT * FROM sandbox."${t}"`, [], { rowMode: 'array' } as never);

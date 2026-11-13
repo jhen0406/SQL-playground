@@ -15,8 +15,9 @@
 
 ```bash
 npm run dev        # vite (5173) + API server (8787)，用 concurrently 同時啟動
-npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 295 個測試
+npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 315 個測試
 npm run build      # tsc --noEmit && vite build
+npm run verify:mysql  # 開發用：在 MySQL 8 上執行每題的 MySQL 寫法並比對（需要 MYSQL_URL）
 ```
 
 修改題目或判題邏輯後一定要跑 `npm test`：`tests/content.test.ts` 會用 PGlite 實際執行每一題的標準解，`tests/wrong-answers.test.ts` 確認常見錯誤寫法會被判錯。
@@ -45,13 +46,18 @@ npm run build      # tsc --noEmit && vite build
   - 沒有 API key 時，前端改成顯示內建的標準解。
   - 呼叫 API 要花錢，沒經使用者同意不要實際呼叫。
 - **章節與練習題**：
-  - 章節 id（c01…c38）和顯示用的 `order`（第幾章）是分開的：c35–c38 是後來插進中間的章節，`order` 必須保持 1..N 連續（有測試檢查）。內文提到「第 N 章」時要跟著改。
+  - 章節 id（c01…c40）和顯示用的 `order`（第幾章）是分開的：c35–c40 是後來插進中間的章節，`order` 必須保持 1..N 連續（有測試檢查）。內文提到「第 N 章」時要跟著改。
   - 每章第 1 題是 `practice`，其餘在 `morePractice`（多數寫在 `src/content/chapters/extraPractice.ts`，由 `src/content/index.ts` 合併）。原則：概念裡每個要動手的子主題一題。
   - **全部練習題答對才算完成本章**（看 `db.submissions` 有沒有 pass）；已完成的章節不收回。
   - 複習輪流出題：`reviewExercise(ch, item.history.length)`，題庫是複習題＋各練習題；進入複習頁時就固定題目。
   - 原本 34 章都學完的使用者，`keepLegacyMasteryUnlocked` 會自動打開 `masteryUnlocked`，避免新章節把精熟挑戰重新鎖住。
   - **表單輸入題**（`inputTemplate`，SQL Injection 章用）：編輯器內容是「輸入框的值」，會被塞進模板的 `{{input}}` 再執行；`solution` 存標準輸入值。編輯器用 `plain` 模式（不自動補引號）。
   - 沙盒每次重設會 `DEALLOCATE ALL`，否則 PREPARE 的語句會殘留在同一連線。
+  - **交易**：使用者 SQL 裡的 BEGIN／COMMIT／ROLLBACK／SAVEPOINT 會照常執行。含交易指令時改成逐條執行（`src/db/splitSql.ts`），否則 PostgreSQL 會把整串指令包成一個隱含交易，BEGIN 之前的指令也會被 ROLLBACK。執行結束時交易還開著就自動 ROLLBACK（`rolledBack` 旗標），checkQuery 在那之後才跑，所以忘了 COMMIT 會被判錯。
+- **MySQL 寫法**（LeetCode 預設用 MySQL）：
+  - 和 PostgreSQL 寫法不同的題目，MySQL 解與差異說明集中在 `src/content/mysqlSolutions.ts`，由 `src/content/index.ts` 合併成 `Exercise.mysql` / `mysqlNote`；解答區有 PostgreSQL／MySQL 分頁（偏好記在 localStorage 的 `sqlpg.solutionDialect`）。
+  - `src/lib/pgOnly.ts` 偵測 PostgreSQL 專屬語法，`tests/content.test.ts` 要求命中的題目一定要有 MySQL 寫法。偵測不到的差異（整數除法、NULL 排序、CONCAT 遇 NULL、日期 + 整數）靠下面的腳本抓。
+  - `scripts/verify-mysql.ts`：把 PGlite 載入後的資料表倒進 MySQL，執行每題的 MySQL 寫法（沒有就用 PostgreSQL 解），用 `compareResults` 比對。新增或修改題目後如果環境有 MySQL 就跑一次。
 - **題型特訓**（`/drills`，`src/pages/DrillPages.tsx`）：LeetCode 經典題型（補零、相鄰列、關聯除法、比率、某時點的值、累計、重排、平手、字串、刪重複）。
   - 題型組在 `src/content/drills/patterns.ts`（`requires` 是前置章節，全部學完才開放；設定的「解鎖精熟」也會一併開放），題目在 `src/content/drills/problems.ts`，id 前綴 `d-`。
   - 每組有自己的小資料集（`src/content/datasets/drills.ts`，id 前綴 `dr-`），隱藏測資專門放陷阱；`tests/wrong-answers.test.ts` 列了每組要被判錯的寫法。

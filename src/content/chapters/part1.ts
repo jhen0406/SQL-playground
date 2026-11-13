@@ -636,7 +636,7 @@ SELECT * FROM products  WHERE product_name LIKE '%Tea%';   -- 包含 Tea
 SELECT * FROM customers WHERE country IN ('Germany', 'France', 'UK');
 -- 等同 country = 'Germany' OR country = 'France' OR country = 'UK'
 ~~~
-\`NOT IN\` 則是不在清單中。IN 也可以接子查詢（第 33 章）。
+\`NOT IN\` 則是不在清單中。IN 也可以接子查詢（第 35 章）。
 
 ### BETWEEN：介於範圍（含頭尾）
 ~~~sql
