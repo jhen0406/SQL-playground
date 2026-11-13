@@ -36,7 +36,7 @@ const ACCOUNT: NavItem = { to: '/account', label: '帳號', short: '帳號', ico
 
 /** 依目前路徑決定頂部列顯示的頁面名稱（章節頁、題目頁顯示上一層） */
 function currentPage(path: string): NavItem {
-  if (path.startsWith('/review')) return NAV[3];
+  if (path.startsWith('/review')) return NAV.find((n) => n.to === '/plan')!;
   if (path.startsWith('/settings')) return SETTINGS;
   if (path.startsWith('/account')) return ACCOUNT;
   return NAV.find((n) => (n.end ? path === n.to : path.startsWith(n.to))) ?? NAV[0];

@@ -15,7 +15,7 @@
 
 ```bash
 npm run dev        # vite (5173) + API server (8787)，用 concurrently 同時啟動
-npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 198 個測試
+npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 295 個測試
 npm run build      # tsc --noEmit && vite build
 ```
 
@@ -44,6 +44,14 @@ npm run build      # tsc --noEmit && vite build
   - 只綁定 `127.0.0.1:${API_PORT}`。不要用 `PORT` 這個環境變數，預覽環境會設 `PORT=5173`，造成衝突。
   - 沒有 API key 時，前端改成顯示內建的標準解。
   - 呼叫 API 要花錢，沒經使用者同意不要實際呼叫。
+- **章節與練習題**：
+  - 章節 id（c01…c38）和顯示用的 `order`（第幾章）是分開的：c35–c38 是後來插進中間的章節，`order` 必須保持 1..N 連續（有測試檢查）。內文提到「第 N 章」時要跟著改。
+  - 每章第 1 題是 `practice`，其餘在 `morePractice`（多數寫在 `src/content/chapters/extraPractice.ts`，由 `src/content/index.ts` 合併）。原則：概念裡每個要動手的子主題一題。
+  - **全部練習題答對才算完成本章**（看 `db.submissions` 有沒有 pass）；已完成的章節不收回。
+  - 複習輪流出題：`reviewExercise(ch, item.history.length)`，題庫是複習題＋各練習題；進入複習頁時就固定題目。
+  - 原本 34 章都學完的使用者，`keepLegacyMasteryUnlocked` 會自動打開 `masteryUnlocked`，避免新章節把精熟挑戰重新鎖住。
+  - **表單輸入題**（`inputTemplate`，SQL Injection 章用）：編輯器內容是「輸入框的值」，會被塞進模板的 `{{input}}` 再執行；`solution` 存標準輸入值。編輯器用 `plain` 模式（不自動補引號）。
+  - 沙盒每次重設會 `DEALLOCATE ALL`，否則 PREPARE 的語句會殘留在同一連線。
 - **題型特訓**（`/drills`，`src/pages/DrillPages.tsx`）：LeetCode 經典題型（補零、相鄰列、關聯除法、比率、某時點的值、累計、重排、平手、字串、刪重複）。
   - 題型組在 `src/content/drills/patterns.ts`（`requires` 是前置章節，全部學完才開放；設定的「解鎖精熟」也會一併開放），題目在 `src/content/drills/problems.ts`，id 前綴 `d-`。
   - 每組有自己的小資料集（`src/content/datasets/drills.ts`，id 前綴 `dr-`），隱藏測資專門放陷阱；`tests/wrong-answers.test.ts` 列了每組要被判錯的寫法。

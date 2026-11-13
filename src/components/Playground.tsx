@@ -237,7 +237,7 @@ export function Playground({ exercise, mode, header, extraInfo, onGraded }: Prop
               <pre className="md-code"><code>{exercise.inputTemplate}</code></pre>
             </div>
           )}
-          {loaded ? <SqlEditor value={sql} onChange={onChange} onRun={doRun} onSubmit={doSubmit} height={exercise.inputTemplate ? 120 : 280} /> : <div style={{ height: 280 }} className="muted u-center">載入中…</div>}
+          {loaded ? <SqlEditor value={sql} onChange={onChange} onRun={doRun} onSubmit={doSubmit} height={exercise.inputTemplate ? 120 : 280} plain={!!exercise.inputTemplate} /> : <div style={{ height: 280 }} className="muted u-center">載入中…</div>}
           {exercise.inputTemplate && loaded && (
             <div className="input-tpl">
               <p className="small muted">實際送進資料庫的 SQL：</p>

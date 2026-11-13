@@ -86,6 +86,16 @@ WHERE NOT EXISTS (
   )
 );
 ~~~
+
+**3. EXCEPT（集合運算章）**：「全部商品 EXCEPT 他買過的」是空集合，就代表全買過了。可以放進 NOT EXISTS 裡：
+~~~sql
+SELECT DISTINCT customer_id FROM customer c
+WHERE NOT EXISTS (
+  SELECT product_key FROM product
+  EXCEPT
+  SELECT product_key FROM customer c2 WHERE c2.customer_id = c.customer_id
+);
+~~~
 `,
     templateSql: `-- 每位顧客買過幾種商品？全部商品有幾種？
 SELECT customer_id,

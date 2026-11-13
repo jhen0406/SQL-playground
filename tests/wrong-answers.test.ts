@@ -134,6 +134,7 @@ describe('題型特訓：常見錯誤會被判錯、正確的替代寫法會通�
     ['d-04', '三次自我連接', 'SELECT DISTINCT l1.num AS consecutive_nums FROM logs l1 JOIN logs l2 ON l2.id = l1.id + 1 JOIN logs l3 ON l3.id = l1.id + 2 WHERE l1.num = l2.num AND l2.num = l3.num;'],
     ['d-06', '計數寫法', 'SELECT e.student_name FROM enrollments e JOIN courses c ON c.course_name = e.course_name WHERE c.is_required GROUP BY e.student_name HAVING COUNT(DISTINCT c.course_name) = (SELECT COUNT(*) FROM courses WHERE is_required);'],
     ['d-10', 'ROW_NUMBER 寫法', "SELECT p.product_id, COALESCE(x.new_price, 10) AS price FROM (SELECT DISTINCT product_id FROM price_changes) p LEFT JOIN (SELECT product_id, new_price, ROW_NUMBER() OVER (PARTITION BY product_id ORDER BY change_date DESC) rn FROM price_changes WHERE change_date <= '2024-08-16') x ON x.product_id = p.product_id AND x.rn = 1;"],
+    ['d-05', 'NOT EXISTS + EXCEPT', 'SELECT DISTINCT customer_id FROM customer c WHERE NOT EXISTS (SELECT product_key FROM product EXCEPT SELECT product_key FROM customer c2 WHERE c2.customer_id = c.customer_id);'],
     ['d-17', '正規表示式', "SELECT patient_id, patient_name, conditions FROM patients WHERE conditions ~ '(^| )DIAB1';"],
     ['d-21', 'NOT IN MIN(id)', 'DELETE FROM person WHERE id NOT IN (SELECT MIN(id) FROM person GROUP BY email);'],
   ];
@@ -172,5 +173,38 @@ describe('章節補充練習：常見錯誤會被判錯', () => {
       expect(g.pass).toBe(false);
     });
   }
+});
+
+describe('新章節：常見錯誤會被判錯', () => {
+  const P = (cid: string, id: string) => {
+    const c = getChapter(cid)!;
+    return [c.practice, ...(c.morePractice ?? []), c.review].find((e) => e.id === id)!;
+  };
+  const cases: [string, string, string, string][] = [
+    ['c35', 'c35-p2', '順序寫反', 'SELECT customer_id FROM orders EXCEPT SELECT customer_id FROM customers;'],
+    ['c36', 'c36-p', '整數除法後才 CEIL', 'SELECT order_detail_id, quantity, CEIL(quantity / 6) AS boxes FROM order_details;'],
+    ['c36', 'c36-p2', '用 ROUND 取代 FLOOR', 'SELECT product_name, ROUND(price * 0.85) AS sale_price FROM products;'],
+    ['c37', 'c37-p', '輸入一般名稱', 'Alpine Market'],
+    ['c37', 'c37-p2', "' OR '1'='1 回傳全部帳號", "' OR '1'='1"],
+    ['c37', 'c37-p3', '混入商品', "x' OR 1=1 UNION SELECT username, password FROM app_users --"],
+    ['c37', 'c37-p4', 'PREPARE 沒用參數', "PREPARE find_customer AS SELECT customer_name, city FROM customers WHERE customer_name = 'Alpine Market';"],
+    ['c38', 'c38-p2', 'LAST_VALUE 沒設範圍', "SELECT order_id, order_date, LAST_VALUE(order_id) OVER (PARTITION BY TO_CHAR(order_date, 'YYYY-MM') ORDER BY order_date, order_id) AS last_in_month FROM orders;"],
+    ['c38', 'c38-p5', '累計平均', "WITH m AS (SELECT TO_CHAR(order_date, 'YYYY-MM') AS month, COUNT(*) AS order_count FROM orders GROUP BY 1) SELECT month, order_count, ROUND(AVG(order_count) OVER (ORDER BY month), 2) AS moving_avg FROM m ORDER BY month;"],
+    ['c38', 'c38-r', 'LAST_VALUE 沒設範圍', 'SELECT first_name, hire_date, FIRST_VALUE(first_name) OVER (ORDER BY hire_date) AS first_hire, LAST_VALUE(first_name) OVER (ORDER BY hire_date) AS last_hire FROM employees;'],
+  ];
+  for (const [cid, id, why, sql] of cases) {
+    it(`${id}：${why}`, async () => {
+      const g = await grade(P(cid, id), sql);
+      expect(g.pass).toBe(false);
+    });
+  }
+  it('c37-p4：PREPARE 可以重複執行（沙盒會 DEALLOCATE）', async () => {
+    const ex = P('c37', 'c37-p4');
+    expect((await grade(ex, ex.solution)).pass).toBe(true);
+    expect((await grade(ex, ex.solution)).pass).toBe(true);
+  });
+  it('c37-p2：admin\' -- 的其他寫法也算對', async () => {
+    expect((await grade(P('c37', 'c37-p2'), "admin'--")).pass).toBe(true);
+  });
 });
 

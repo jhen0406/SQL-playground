@@ -540,7 +540,7 @@ SELECT COUNT(*) AS total, COUNT(price) AS priced, AVG(price) AS avg_price FROM p
 ### 重點
 - **彙總函數會忽略 NULL**（COUNT(*) 除外）。
 - \`ROUND(值, 2)\` 四捨五入到小數 2 位，LeetCode 很常要求。
-- 沒有 GROUP BY 時，整張表算成一列。想「每個分類各算一次」要用第 17 章的 GROUP BY。
+- 沒有 GROUP BY 時，整張表算成一列。想「每個分類各算一次」要用第 18 章的 GROUP BY。
 - \`AS\` 可以替結果欄位取名字（第 13 章）。
 `,
     examples: [
@@ -636,7 +636,7 @@ SELECT * FROM products  WHERE product_name LIKE '%Tea%';   -- 包含 Tea
 SELECT * FROM customers WHERE country IN ('Germany', 'France', 'UK');
 -- 等同 country = 'Germany' OR country = 'France' OR country = 'UK'
 ~~~
-\`NOT IN\` 則是不在清單中。IN 也可以接子查詢（第 30 章）。
+\`NOT IN\` 則是不在清單中。IN 也可以接子查詢（第 33 章）。
 
 ### BETWEEN：介於範圍（含頭尾）
 ~~~sql

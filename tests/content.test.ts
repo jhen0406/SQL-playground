@@ -85,3 +85,9 @@ describe('chapter helpers', () => {
   });
 });
 
+describe('chapter order', () => {
+  it('orders are 1..N without gaps', () => {
+    expect(chapters.map((c) => c.order)).toEqual(chapters.map((_, i) => i + 1));
+  });
+});
+

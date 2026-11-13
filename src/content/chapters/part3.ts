@@ -4,7 +4,7 @@ import { ex, tableDefCheck } from './helpers';
 export const part3: Chapter[] = [
   {
     id: 'c24',
-    order: 24,
+    order: 26,
     part: 'database',
     title: 'CREATE / DROP / ALTER TABLE',
     w3Topics: 'SQL Create DB · Drop DB · Create Table · Drop Table · Alter Table',
@@ -25,7 +25,7 @@ CREATE TABLE reviews (
   comment    TEXT
 );
 ~~~
-每個欄位需要**名稱 + 型別**。常用型別：\`INTEGER\`、\`NUMERIC(10,2)\`、\`VARCHAR(n)\`、\`TEXT\`、\`DATE\`、\`TIMESTAMP\`、\`BOOLEAN\`（第 29 章）。
+每個欄位需要**名稱 + 型別**。常用型別：\`INTEGER\`、\`NUMERIC(10,2)\`、\`VARCHAR(n)\`、\`TEXT\`、\`DATE\`、\`TIMESTAMP\`、\`BOOLEAN\`（第 31 章）。
 
 ### 刪除 / 清空
 ~~~sql
@@ -79,7 +79,7 @@ ALTER TABLE shippers ALTER COLUMN email TYPE VARCHAR(200);   -- PostgreSQL 語�
   },
   {
     id: 'c25',
-    order: 25,
+    order: 27,
     part: 'database',
     title: '約束 Constraints',
     w3Topics: 'SQL Constraints · Not Null · Unique · Primary Key · Foreign Key · Check · Default',
@@ -157,7 +157,7 @@ LeetCode 題目開頭的表格說明常寫「(order_id, product_id) is the prima
   },
   {
     id: 'c26',
-    order: 26,
+    order: 28,
     part: 'database',
     title: '索引與自動遞增',
     w3Topics: 'SQL Create Index · SQL Auto Increment',
@@ -219,7 +219,7 @@ INSERT INTO tickets (title) VALUES ('Login bug');  -- ticket_id 自動為 1
   },
   {
     id: 'c27',
-    order: 27,
+    order: 29,
     part: 'database',
     title: '日期 Dates',
     w3Topics: 'SQL Dates',
@@ -281,7 +281,7 @@ SELECT DATE '2024-03-10' - DATE '2024-03-01';        -- 相減得到天數：9
   },
   {
     id: 'c28',
-    order: 28,
+    order: 30,
     part: 'database',
     title: 'VIEW 檢視表',
     w3Topics: 'SQL Views',
@@ -333,10 +333,10 @@ SELECT * FROM product_catalog WHERE price > 20;
   },
   {
     id: 'c29',
-    order: 29,
+    order: 31,
     part: 'database',
     title: '資料型別與型別轉換',
-    w3Topics: 'SQL Data Types · SQL Injection（觀念）',
+    w3Topics: 'SQL Data Types · CAST',
     concept: `
 ### PostgreSQL 常用型別
 | 類別 | 型別 | 說明 |
@@ -362,9 +362,6 @@ SELECT COUNT(price) / COUNT(*) FROM products;                   -- 0 ❌
 SELECT ROUND(COUNT(price)::NUMERIC / COUNT(*), 2) FROM products; -- 0.94 ✅
 ~~~
 注意：PostgreSQL 的 \`ROUND(x, 2)\` 只接受 NUMERIC，如果 x 是 DOUBLE PRECISION 要先 \`::NUMERIC\`。
-
-### SQL Injection（觀念）
-永遠不要把使用者輸入直接拼接進 SQL 字串，應使用參數化查詢（程式語言的 placeholder）。
 `,
     examples: [
       { title: '整數除法', sql: 'SELECT COUNT(price) / COUNT(*) AS wrong, ROUND(COUNT(price)::NUMERIC / COUNT(*), 2) AS correct FROM products;', explain: '15 / 16 在整數除法下是 0。' },

@@ -113,9 +113,11 @@ interface Props {
   onSubmit?: () => void;
   height?: number | string;
   readOnly?: boolean;
+  /** 純文字輸入（表單輸入題）：不做 SQL 上色、不自動補引號與括號、不跳自動完成 */
+  plain?: boolean;
 }
 
-export function SqlEditor({ value, onChange, onRun, onSubmit, height = 260, readOnly }: Props) {
+export function SqlEditor({ value, onChange, onRun, onSubmit, height = 260, readOnly, plain }: Props) {
   const theme = useTheme();
   const runRef = useRef(onRun);
   const submitRef = useRef(onSubmit);
@@ -136,7 +138,7 @@ export function SqlEditor({ value, onChange, onRun, onSubmit, height = 260, read
     <div className="editor-frame">
       <Editor
         height={height}
-        language="sql"
+        language={plain ? 'plaintext' : 'sql'}
         theme={theme === 'dark' ? 'sqlpg-dark' : 'sqlpg-light'}
         beforeMount={handleBeforeMount}
         value={value}
@@ -155,7 +157,10 @@ export function SqlEditor({ value, onChange, onRun, onSubmit, height = 260, read
           readOnly,
           renderLineHighlight: 'line',
           padding: { top: 10, bottom: 10 },
-          quickSuggestions: { other: true, comments: false, strings: false },
+          quickSuggestions: plain ? false : { other: true, comments: false, strings: false },
+          suggestOnTriggerCharacters: !plain,
+          autoClosingQuotes: plain ? 'never' : 'languageDefined',
+          autoClosingBrackets: plain ? 'never' : 'languageDefined',
           // 自動完成、提示等浮動視窗改用 fixed 定位，才不會被外層卡片的 overflow 裁掉
           fixedOverflowWidgets: true,
         }}

@@ -65,7 +65,7 @@ export function Dashboard() {
               ? `有 ${due.length} 個章節到了複習時間，先複習再學新的，記得更牢。`
               : next
                 ? done.size === 0
-                  ? '從第一條 SELECT 開始，學完 34 章就能無縫接軌 LeetCode SQL 題。'
+                  ? `從第一條 SELECT 開始，學完 ${chapters.length} 章就能無縫接軌 LeetCode SQL 題。`
                   : `下一章：第 ${next.order} 章 · ${next.title}`
                 : masteryOpen
                   ? '入門課程全部完成！每天的精熟挑戰題在等你。'

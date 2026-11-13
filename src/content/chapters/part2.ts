@@ -252,7 +252,7 @@ LeetCode 中「把兩種角色的資料合在一起統計」（例如 602. Frien
   },
   {
     id: 'c17',
-    order: 17,
+    order: 18,
     part: 'basic',
     title: 'GROUP BY 分組',
     w3Topics: 'SQL Group By',
@@ -316,7 +316,7 @@ GROUP BY c.category_name;
   },
   {
     id: 'c18',
-    order: 18,
+    order: 19,
     part: 'basic',
     title: 'HAVING 篩選分組',
     w3Topics: 'SQL Having',
@@ -376,7 +376,7 @@ LeetCode 經典：「找出重複的 Email」（182. Duplicate Emails）就是 \
   },
   {
     id: 'c19',
-    order: 19,
+    order: 20,
     part: 'basic',
     title: 'EXISTS、ANY、ALL',
     w3Topics: 'SQL Exists · SQL Any, All',
@@ -432,7 +432,7 @@ WHERE price > ALL (SELECT price FROM products WHERE category_id = 4)
   },
   {
     id: 'c20',
-    order: 20,
+    order: 21,
     part: 'basic',
     title: 'INSERT INTO SELECT 與 SELECT INTO',
     w3Topics: 'SQL Select Into · SQL Insert Into Select',
@@ -482,7 +482,7 @@ MySQL 只支援 \`CREATE TABLE ... AS SELECT\`。
   },
   {
     id: 'c21',
-    order: 21,
+    order: 22,
     part: 'basic',
     title: 'CASE 條件運算',
     w3Topics: 'SQL Case',
@@ -543,7 +543,7 @@ PostgreSQL 也可以寫成 \`COUNT(*) FILTER (WHERE price < 10)\`。這個技巧
   },
   {
     id: 'c22',
-    order: 22,
+    order: 23,
     part: 'basic',
     title: 'NULL 函數：COALESCE',
     w3Topics: 'SQL Null Functions',
@@ -605,7 +605,7 @@ GROUP BY c.customer_id, c.customer_name;
   },
   {
     id: 'c23',
-    order: 23,
+    order: 24,
     part: 'basic',
     title: '註解與運算子',
     w3Topics: 'SQL Comments · SQL Operators',
