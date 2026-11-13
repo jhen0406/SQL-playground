@@ -2,7 +2,7 @@
  * SQL 練功房 — Design tokens
  * 來源：Figma「Multiple Dark Dashboards Inspirations」範本 ④（ovniscale）
  *   深紫黑底 + 青綠主色 + 紫色輔色；卡片細邊框、無陰影、大圓角
- *   字型：Poppins（介面英數）+ Noto Sans TC（中文）+ JetBrains Mono（程式碼）
+ *   字型：Chiron GoRound TC（介面，中英文）+ JetBrains Mono（程式碼）
  * 預設深色；淺色版沿用同組色相並調整到 WCAG AA 對比。
  */
 :root {
@@ -66,8 +66,8 @@
   --sp-5: 24px;
   --sp-6: 32px;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --font: 'Poppins', 'Noto Sans TC', 'Microsoft JhengHei', 'PingFang TC', system-ui, sans-serif;
-  --mono: 'JetBrains Mono', 'Cascadia Code', Consolas, 'Noto Sans TC', monospace;
+  --font: 'Chiron GoRound TC', 'Microsoft JhengHei', 'PingFang TC', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'Cascadia Code', Consolas, 'Chiron GoRound TC', monospace;
   color-scheme: light;
 }
 

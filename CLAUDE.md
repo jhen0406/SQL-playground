@@ -59,7 +59,7 @@ npm run build      # tsc --noEmit && vite build
   - 卡片裡的區塊用 `--surface-2` 底色區分。
   - hover／選中狀態用 `box-shadow: inset 0 0 0 1px`，不用 border。
 - 版面：左邊是 92px 寬的窄圖示側欄，加上頂部列；寬度 ≤ 860px 時側欄變成抽屜。
-- 字型：Poppins（英數）＋ Noto Sans TC（中文）＋ JetBrains Mono（程式碼）。**程式字型必須關閉連字**，否則 `<>`、`>=` 會顯示成 `≠`、`≥`。
+- 字型：Chiron GoRound TC（介面，中英文都用它）＋ JetBrains Mono（程式碼）。**程式字型必須關閉連字**，否則 `<>`、`>=` 會顯示成 `≠`、`≥`。
 - 圖示只用 `lucide-react`。裝飾性圖示加 `aria-hidden`，純圖示按鈕要有 `aria-label`。
 - 圖表：手寫 SVG，系列色用 `--series-1` / `--series-2`（已通過 dataviz 驗證器檢查）。要有圖例、tooltip 和表格檢視。
 
