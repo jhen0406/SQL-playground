@@ -183,7 +183,8 @@ INSERT INTO suppliers VALUES (7, 'Harbor Frozen Foods', 'Mia Ho', 'Kaohsiung', '
 INSERT INTO products VALUES
  (101, 'Pork Dumplings',   7, 8, '30 pieces', 16.00),
  (102, 'Mango Ice Cream',  7, 8, '1 liter',   12.50),
- (103, 'Matcha Latte',     1, 1, '6 bottles', 21.00);
+ (103, 'Matcha Latte',     1, 1, '6 bottles', 21.00),
+ (104, 'Tea Biscuits',     3, 3, '12 pieces',  9.00);
 INSERT INTO customers VALUES
  (101, 'Kaohsiung Mart',   'Ben Hsu',   'Zhongzheng Rd. 5', 'Kaohsiung', '800', 'Taiwan'),
  (102, 'Golden Gate Goods','Ava Brown', '50 Market St.',    'San Francisco', '94105', 'USA'),

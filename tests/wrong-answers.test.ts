@@ -144,3 +144,33 @@ describe('題型特訓：常見錯誤會被判錯、正確的替代寫法會通�
     });
   }
 });
+
+describe('章節補充練習：常見錯誤會被判錯', () => {
+  const P = (cid: string, id: string) => {
+    const c = getChapter(cid)!;
+    return [c.practice, ...(c.morePractice ?? [])].find((e) => e.id === id)!;
+  };
+  const cases: [string, string, string, string][] = [
+    ['c04', 'c04-p2', 'DESC 時 NULL 排第一', 'SELECT first_name, salary FROM employees ORDER BY salary DESC;'],
+    ['c05', 'c05-p2', '少了括號', 'SELECT product_name, category_id, price FROM products WHERE category_id = 1 OR category_id = 2 AND price > 15;'],
+    ['c05', 'c05-p3', '<> 用 OR 連接', "SELECT customer_name, country FROM customers WHERE country <> 'Mexico' OR country <> 'Germany';"],
+    ['c09', 'c09-p2', 'OFFSET 寫成頁數', 'SELECT product_id, product_name FROM products ORDER BY product_id LIMIT 5 OFFSET 2;'],
+    ['c10', 'c10-p2', 'COUNT(*) 也算 NULL', 'SELECT COUNT(*) AS total_employees, COUNT(*) AS with_salary FROM employees;'],
+    ['c11', 'c11-p3', "'%Tea%' 抓到中間有 Tea 的", "SELECT product_name FROM products WHERE product_name LIKE '%Tea%';"],
+    ['c14', 'c14-p2', 'INNER JOIN', 'SELECT c.category_name FROM categories c JOIN products p ON p.category_id = c.category_id WHERE p.product_id IS NULL;'],
+    ['c14', 'c14-p3', '只用 LEFT JOIN', 'SELECT o.order_id, s.shipper_name FROM orders o LEFT JOIN shippers s ON s.shipper_id = o.shipper_id;'],
+    ['c19', 'c19-p3', '用 ALL', 'SELECT product_name, price FROM products WHERE price > ALL (SELECT price FROM products WHERE category_id = 4);'],
+    ['c22', 'c22-p2', '沒有 NULLIF 會除以 0', 'SELECT c.category_name, ROUND(COUNT(p.price)::NUMERIC / COUNT(p.product_id), 2) AS priced_ratio FROM categories c LEFT JOIN products p ON p.category_id = c.category_id GROUP BY c.category_id, c.category_name;'],
+    ['c24', 'c24-p2', 'DROP TABLE', 'DROP TABLE order_details;'],
+    ['c30', 'c30-p2', '平均到明細', 'SELECT ROUND(AVG(quantity), 2) AS avg_items FROM order_details;'],
+    ['c30', 'c30-p4', 'NOT IN 遇到 NULL', 'SELECT shipper_name FROM shippers WHERE shipper_id NOT IN (SELECT shipper_id FROM orders);'],
+    ['c34', 'c34-p2', '少了 ^ $', "SELECT customer_name, postal_code FROM customers WHERE postal_code ~ '[0-9]+';"],
+  ];
+  for (const [cid, id, why, sql] of cases) {
+    it(`${id}：${why}`, async () => {
+      const g = await grade(P(cid, id), sql);
+      expect(g.pass).toBe(false);
+    });
+  }
+});
+

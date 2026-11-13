@@ -29,7 +29,7 @@ npm run build      # tsc --noEmit && vite build
   - 預設忽略列順序，用 multiset 比對；`orderMatters` 為真時才要求順序一致。
   - 數值取到小數 4 位再比對。欄位名稱只在 `strictColumns` 時才檢查。
   - 修改資料的題目（DML/DDL）用 `checkQuery` 檢查最後的資料狀態。
-- **隱藏測資用來防止寫死答案**：例如 `shop` 資料集的隱藏資料有 UK 顧客 104、空分類 Bakery(7)、分類 8 Frozen 和 9 Pet Food。新增題目時要確認錯誤寫法在隱藏測資上會失敗。
+- **隱藏測資用來防止寫死答案**：例如 `shop` 資料集的隱藏資料有 UK 顧客 104、空分類 Bakery(7)、分類 8 Frozen 和 9 Pet Food、商品 104 Tea Biscuits。新增題目時要確認錯誤寫法在隱藏測資上會失敗。
 - **儲存**：Dexie（IndexedDB）是主要儲存，元件透過 `src/store/db.ts` 的 `useLive` 讀取。
   - DB 版本 2 新增了 `notes` 表（重點筆記）。
   - 寫入函式集中在 `src/store/progress.ts`。

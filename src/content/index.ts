@@ -5,6 +5,7 @@ import { part1 } from './chapters/part1';
 import { part2 } from './chapters/part2';
 import { part3 } from './chapters/part3';
 import { part4 } from './chapters/part4';
+import { extraPractice } from './chapters/extraPractice';
 import { masteryProblems } from './mastery/problems';
 import { drillDatasets } from './datasets/drills';
 import { drillPatterns as patterns } from './drills/patterns';
@@ -18,7 +19,9 @@ export const datasets: Record<string, Dataset> = {
   ...Object.fromEntries(drillDatasets.map((d) => [d.id, d])),
 };
 
-export const chapters: Chapter[] = [...part1, ...part2, ...part3, ...part4].sort((a, b) => a.order - b.order);
+export const chapters: Chapter[] = [...part1, ...part2, ...part3, ...part4]
+  .map((c) => (extraPractice[c.id] ? { ...c, morePractice: [...(c.morePractice ?? []), ...extraPractice[c.id]] } : c))
+  .sort((a, b) => a.order - b.order);
 
 export const PART_LABELS: Record<Chapter['part'], string> = {
   basic: '第一部：SQL 基礎（w3schools 路線）',
