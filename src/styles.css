@@ -348,6 +348,8 @@ ul.plain li { padding: 6px 0; }
     't t t t t t t u u u u u';
 }
 .welcome { grid-area: w; }
+/* 儀表板卡片：無邊框、5px 圓角 */
+.dash .card { border: 0; border-radius: 5px; }
 .kpis { grid-area: k; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4); }
 .chart-card { grid-area: c; min-width: 0; }
 .parts-card { grid-area: p; }
