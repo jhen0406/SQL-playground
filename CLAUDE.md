@@ -5,13 +5,17 @@
 ## 溝通
 
 - 使用者用**繁體中文**溝通；介面文字、註解、commit 訊息也用繁體中文。
+- commit 訊息採用 Conventional Commits：**前綴用英文，描述用繁體中文**，例如 `feat: 新增 5 款插畫風格頭像`。
+  - `feat` 新功能、`fix` 修 bug、`style` 只改外觀或格式、`refactor` 重構、`test` 測試、`docs` 文件、`chore` 雜項（套件、設定、建置）。
+  - 一個 commit 同時包含多種變更時，用最主要的那一種當前綴。
+  - 2026-11-13 以前的 commit 沒有前綴，不用回頭修改。
 - 目標使用者：SQL 零基礎，學完要能直接刷 LeetCode SQL 題。
 
 ## 常用指令
 
 ```bash
 npm run dev        # vite (5173) + API server (8787)，用 concurrently 同時啟動
-npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 132 個測試
+npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 136 個測試
 npm run build      # tsc --noEmit && vite build
 ```
 
@@ -47,6 +51,10 @@ npm run build      # tsc --noEmit && vite build
 - **重點筆記**（`src/components/Highlighter.tsx`）：
   - 用 CSS Custom Highlight API 標記文字，不改動 React 管理的 DOM。
   - 位置記成「文字＋第幾次出現」，比對邏輯在 `src/lib/textMatch.ts`。
+- **練習頁左欄**：上方是題目、下方是資料表，中間可以拖曳調整，比例存在 localStorage 的 `sqlpg.splitRatio`；窄螢幕時改成上下依序排列。
+  - 入門題：`src/lib/schemaHints.ts` 的 `tablesUsed` 從標準解找出本題用到的表，排在最前面、預設展開，掛「本題用到」標籤。
+  - 精熟題：要用哪幾張表是練習的一部分，**不要透露**。
+  - 兩種題目都會用 `mentionedColumns` 把題目提到的欄位標上 ★。
 - **Monaco**：從本機打包載入，不走 CDN。主題 `sqlpg-dark` / `sqlpg-light` 定義在 `src/components/SqlEditor.tsx`。
   - **全域 CSS 不要用通用 class 名稱**，例如 `.main`、`.input`、`.center`、`.left`、`.icon`、`.contents`。Monaco 內部也用這些名字。
   - 之前全域的 `.main` 曾讓自動完成清單的文字消失，所以版面類 class 一律加前綴（`.app-main`、`.ui-input`、`.u-center`）。

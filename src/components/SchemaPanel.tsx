@@ -50,44 +50,116 @@ export function useTables(ds: Dataset, ex?: Pick<Exercise, 'extraSetupSql'>) {
   return { tables, error };
 }
 
-export function SchemaPanel({ ds, ex, compact }: { ds: Dataset; ex?: Pick<Exercise, 'extraSetupSql'>; compact?: boolean }) {
+interface SchemaPanelProps {
+  ds: Dataset;
+  ex?: Pick<Exercise, 'extraSetupSql'>;
+  /** 課程頁旁邊的精簡版：點表名展開範例資料（維持原本行為） */
+  compact?: boolean;
+  /** 本題用到的表：排在最前面、預設展開、掛「本題用到」標籤；其他表預設收合 */
+  focus?: string[];
+  /** 題目提到的欄位：以青綠粗體 + 星號標示 */
+  mark?: Set<string>;
+}
+
+export function SchemaPanel({ ds, ex, compact, focus, mark }: SchemaPanelProps) {
   const { tables, error } = useTables(ds, ex);
+  // compact：哪張表展開了範例資料；一般模式：哪些表收合、哪些表打開範例資料
   const [open, setOpen] = useState<string | null>(null);
+  const focusKey = (focus ?? []).join(',');
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [samples, setSamples] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    // 換題目時重設：有 focus 時，非本題用到的表預設收合
+    setCollapsed(new Set(focus && focus.length && tables ? tables.map((t) => t.name).filter((n) => !focus.includes(n)) : []));
+    setSamples(new Set());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusKey, tables]);
+
   if (error) return <div className="alert alert-bad">資料庫載入失敗：{error}</div>;
   if (!tables) return <div className="muted">正在啟動 PostgreSQL…（第一次載入約需數秒）</div>;
+
+  const toggle = (set: Set<string>, name: string) => {
+    const next = new Set(set);
+    if (next.has(name)) next.delete(name);
+    else next.add(name);
+    return next;
+  };
+  const ordered = focus?.length ? [...tables.filter((t) => focus.includes(t.name)), ...tables.filter((t) => !focus.includes(t.name))] : tables;
+
+  const cols = (t: (typeof tables)[number]) => (
+    <table className="schema-cols">
+      <tbody>
+        {t.columns.map((c) => {
+          const marked = mark?.has(c.name);
+          return (
+            <tr key={c.name} className={marked ? 'col-mark' : undefined}>
+              <td className="mono" title={marked ? '題目有提到' : undefined}>
+                {marked && <span className="col-star" aria-label="題目有提到">★</span>}
+                {c.name}
+                {c.pk && <span className="badge badge-key inline-ic" title="Primary Key"><KeyRound size={11} aria-hidden />PK</span>}
+              </td>
+              <td className="mono muted" title={c.type}>{shortType(c.type)}</td>
+              <td className="muted small">{c.nullable ? '' : 'NOT NULL'}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+  const sample = (t: (typeof tables)[number]) => (
+    <div className="schema-sample">
+      <ResultTable result={t.sample} maxHeight={260} caption={t.rowCount > t.sample.rows.length ? `範例資料（前 ${t.sample.rows.length} 列，共 ${t.rowCount} 列）` : '範例資料'} />
+    </div>
+  );
+
+  if (compact) {
+    return (
+      <div className="schema">
+        {tables.map((t) => (
+          <div key={t.name} className="schema-table">
+            <button className="schema-head" onClick={() => setOpen(open === t.name ? null : t.name)} aria-expanded={open === t.name}>
+              <Table2 className="ic-sm" aria-hidden />
+              <span className="schema-name">{t.name}</span>
+              <span className="muted small">{t.rowCount} 列</span>
+              <span className="chev">{open === t.name ? <ChevronDown className="ic-sm" aria-hidden /> : <ChevronRight className="ic-sm" aria-hidden />}</span>
+            </button>
+            {cols(t)}
+            {open === t.name && sample(t)}
+          </div>
+        ))}
+        <p className="muted small">點表名可展開範例資料。判題時還會用一份你看不到的「隱藏測資」再測一次，請不要針對範例資料寫死答案。</p>
+      </div>
+    );
+  }
+
   return (
     <div className="schema">
-      {!compact && <p className="muted small">{ds.description}</p>}
-      {tables.map((t) => (
-        <div key={t.name} className="schema-table">
-          <button className="schema-head" onClick={() => setOpen(open === t.name ? null : t.name)} aria-expanded={open === t.name}>
-            <Table2 className="ic-sm" aria-hidden />
-            <span className="schema-name">{t.name}</span>
-            <span className="muted small">{t.rowCount} 列</span>
-            <span className="chev">{open === t.name ? <ChevronDown className="ic-sm" aria-hidden /> : <ChevronRight className="ic-sm" aria-hidden />}</span>
-          </button>
-          <table className="schema-cols">
-            <tbody>
-              {t.columns.map((c) => (
-                <tr key={c.name}>
-                  <td className="mono">
-                    {c.name}
-                    {c.pk && <span className="badge badge-key inline-ic" title="Primary Key"><KeyRound size={11} aria-hidden />PK</span>}
-                  </td>
-                  <td className="mono muted" title={c.type}>{shortType(c.type)}</td>
-                  <td className="muted small">{c.nullable ? '' : 'NOT NULL'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {open === t.name && (
-            <div className="schema-sample">
-              <ResultTable result={t.sample} maxHeight={260} caption={t.rowCount > t.sample.rows.length ? `範例資料（前 ${t.sample.rows.length} 列，共 ${t.rowCount} 列）` : '範例資料'} />
-            </div>
-          )}
-        </div>
-      ))}
-      <p className="muted small">點表名可展開範例資料。判題時還會用一份你看不到的「隱藏測資」再測一次，請不要針對範例資料寫死答案。</p>
+      {ordered.map((t) => {
+        const isOpen = !collapsed.has(t.name);
+        const used = focus?.includes(t.name);
+        return (
+          <div key={t.name} className={'schema-table' + (used ? ' schema-used' : '')}>
+            <button className="schema-head" onClick={() => setCollapsed(toggle(collapsed, t.name))} aria-expanded={isOpen}>
+              <span className="chev">{isOpen ? <ChevronDown className="ic-sm" aria-hidden /> : <ChevronRight className="ic-sm" aria-hidden />}</span>
+              <Table2 className="ic-sm" aria-hidden />
+              <span className="schema-name">{t.name}</span>
+              {used && <span className="chip">本題用到</span>}
+              <span className="muted small">{t.rowCount} 列</span>
+            </button>
+            {isOpen && (
+              <>
+                {cols(t)}
+                <button className="btn btn-ghost btn-sm schema-toggle" onClick={() => setSamples(toggle(samples, t.name))} aria-expanded={samples.has(t.name)}>
+                  {samples.has(t.name) ? <ChevronDown className="ic-sm" aria-hidden /> : <ChevronRight className="ic-sm" aria-hidden />}
+                  範例資料（{t.rowCount} 列）
+                </button>
+                {samples.has(t.name) && sample(t)}
+              </>
+            )}
+          </div>
+        );
+      })}
+      <p className="muted small">判題時還會用一份你看不到的「隱藏測資」再測一次，請不要針對範例資料寫死答案。</p>
     </div>
   );
 }
