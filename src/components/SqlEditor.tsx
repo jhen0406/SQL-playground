@@ -54,7 +54,7 @@ function ensureProvider() {
 }
 
 let themesDefined = false;
-/** 與 styles.css 設計 token 一致的編輯器主題（#151 Coding Challenge 配色） */
+/** 與 styles.css 設計 token 一致的編輯器主題（範本 ④：深紫 + 青綠） */
 function defineThemes(m: typeof monaco) {
   if (themesDefined) return;
   themesDefined = true;
@@ -62,39 +62,42 @@ function defineThemes(m: typeof monaco) {
     base: 'vs-dark',
     inherit: true,
     rules: [
-      { token: 'keyword', foreground: '4ADE80', fontStyle: 'bold' },
-      { token: 'operator', foreground: 'CBD5E1' },
+      { token: 'keyword', foreground: '2DD4BF', fontStyle: 'bold' },
+      { token: 'operator', foreground: 'D6D2E4' },
       { token: 'string', foreground: 'FBBF24' },
-      { token: 'number', foreground: '7DD3FC' },
-      { token: 'comment', foreground: '64748B', fontStyle: 'italic' },
-      { token: 'predefined', foreground: 'C4B5FD' },
+      { token: 'number', foreground: 'C4B5FD' },
+      { token: 'comment', foreground: '7D7694', fontStyle: 'italic' },
+      { token: 'predefined', foreground: 'A78BFA' },
     ],
     colors: {
-      'editor.background': '#0F172A',
-      'editor.lineHighlightBackground': '#131C2E',
-      'editorLineNumber.foreground': '#475569',
-      'editorLineNumber.activeForeground': '#94A3B8',
-      'editorCursor.foreground': '#4ADE80',
-      'editor.selectionBackground': '#22C55E33',
-      'editorGutter.background': '#0F172A',
+      'editor.background': '#1B1825',
+      'editor.lineHighlightBackground': '#221F2E',
+      'editorLineNumber.foreground': '#5B5670',
+      'editorLineNumber.activeForeground': '#A39DB8',
+      'editorCursor.foreground': '#2DD4BF',
+      'editor.selectionBackground': '#2DD4BF33',
+      'editorGutter.background': '#1B1825',
+      'editorSuggestWidget.background': '#201D2B',
+      'editorSuggestWidget.border': '#2F2B3D',
+      'editorSuggestWidget.selectedBackground': '#2A2638',
     },
   });
   m.editor.defineTheme('sqlpg-light', {
     base: 'vs',
     inherit: true,
     rules: [
-      { token: 'keyword', foreground: '15803D', fontStyle: 'bold' },
+      { token: 'keyword', foreground: '0F766E', fontStyle: 'bold' },
       { token: 'string', foreground: 'B45309' },
-      { token: 'number', foreground: '0369A1' },
-      { token: 'comment', foreground: '64748B', fontStyle: 'italic' },
+      { token: 'number', foreground: '6D28D9' },
+      { token: 'comment', foreground: '6B6580', fontStyle: 'italic' },
       { token: 'predefined', foreground: '7C3AED' },
     ],
     colors: {
       'editor.background': '#FFFFFF',
-      'editor.lineHighlightBackground': '#F1F5F9',
-      'editorLineNumber.foreground': '#94A3B8',
-      'editorCursor.foreground': '#15803D',
-      'editor.selectionBackground': '#22C55E2E',
+      'editor.lineHighlightBackground': '#F6F5FA',
+      'editorLineNumber.foreground': '#A39DB8',
+      'editorCursor.foreground': '#0F766E',
+      'editor.selectionBackground': '#14B8A62E',
     },
   });
 }

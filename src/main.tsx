@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './styles.css';
-import { applyTheme, getStoredTheme } from './lib/theme';
+import { initTheme } from './lib/theme';
 import { Layout } from './components/Layout';
 import { Dashboard } from './pages/Dashboard';
 import { LearnIndex } from './pages/LearnIndex';
@@ -15,7 +15,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { NotesPage } from './pages/NotesPage';
 import { AccountPage } from './pages/AccountPage';
 
-applyTheme(getStoredTheme());
+initTheme();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

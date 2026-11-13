@@ -3,7 +3,7 @@ import { db, exportAll, importAll, saveSettings, useSettings } from '../store/db
 import { cloudEnabled, markChanged } from '../store/cloud';
 import { DEFAULT_OFFSETS } from '../srs/schedule';
 import { getDayOffset, setDayOffset } from '../lib/date';
-import { applyTheme, getStoredTheme } from '../lib/theme';
+import { applyTheme, getThemePref, type ThemePref } from '../lib/theme';
 import { aiAvailable } from '../grading/aiReview';
 
 export function SettingsPage() {
@@ -12,7 +12,7 @@ export function SettingsPage() {
   const [msg, setMsg] = useState<string | null>(null);
   const [perm, setPerm] = useState<string>('Notification' in window ? Notification.permission : 'unsupported');
   const [ai, setAi] = useState<boolean | null>(null);
-  const [theme, setTheme] = useState(getStoredTheme() ?? 'system');
+  const [theme, setTheme] = useState<ThemePref>(getThemePref());
   const [dayOffset, setOffsetState] = useState(getDayOffset());
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -135,16 +135,16 @@ export function SettingsPage() {
       <section className="card">
         <h2>外觀</h2>
         <div className="seg">
-          {(['system', 'light', 'dark'] as const).map((t) => (
+          {(['dark', 'light', 'system'] as const).map((t) => (
             <button
               key={t}
               className={theme === t ? 'on' : ''}
               onClick={() => {
                 setTheme(t);
-                applyTheme(t === 'system' ? null : t);
+                applyTheme(t);
               }}
             >
-              {{ system: '跟隨系統', light: '淺色', dark: '深色' }[t]}
+              {{ system: '跟隨系統', light: '淺色', dark: '深色（預設）' }[t]}
             </button>
           ))}
         </div>

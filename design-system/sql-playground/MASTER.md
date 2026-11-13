@@ -1,36 +1,43 @@
 # SQL 練功房 — Design System (MASTER)
 
-> 依 ui-ux-pro-max 資料庫（v2.15.0）整理。本機沒有 Python，無法執行 `search.py`，以下由直接讀取其 CSV 資料表取得。
-> 實作位置：`src/styles.css`（CSS 變數）、`src/components/SqlEditor.tsx`（Monaco 主題）。
+> 2026-11 改版：參考 Figma 社群範本「Multiple Dark Dashboards Inspirations」的第四個儀表板（ovniscale，深紫＋青綠）。
+> 實作位置：`src/styles.css`（CSS 變數）、`src/components/SqlEditor.tsx`（Monaco 主題）、`src/lib/theme.ts`（主題切換）。
 
-## 來源
+## 風格
 
-| 項目 | 資料表 / 列 | 採用內容 |
-|---|---|---|
-| 產品類型 | products #79 Coding Bootcamp | Dark Mode (OLED) + Minimalism & Swiss；反模式：只有淺色模式 |
-| 配色 | colors #151 Coding Challenge & Practice | 深石板底 `#0F172A`、程式綠 `#22C55E`、難度琥珀 `#D97706` |
-| 字型 | typography #9 Developer Mono | JetBrains Mono（程式碼）+ IBM Plex Sans（介面）；中文補 Noto Sans TC |
-| 檢查清單 | references/pro-rules.md | SVG 圖示（不用 emoji）、文字對比 ≥ 4.5:1、可見 focus、reduced-motion |
+- **預設深色**；設定頁或頂部列可切換淺色，也可以選「跟隨系統」。
+- 深紫黑底，卡片使用細邊框、不加陰影、圓角 12–16px。
+- 版面：
+  - 左側是窄圖示側欄（92px），圖示在上、短標籤在下；選中項目左側有青綠直條。
+  - 頂部列左側是頁面標題，右側是日期、主題切換和帳號頭像。
+  - 手機上側欄收成抽屜，項目改成圖示加完整名稱的橫排。
+- 統計卡：小標題、大數字（青綠、mono、tabular-nums）、小圓角 chip、迷你圖。
 
 ## Token
 
-| Token | Light | Dark |
+| Token | 深色（預設） | 淺色 |
 |---|---|---|
-| `--bg` | `#F8FAFC` | `#0B1120` |
-| `--surface` | `#FFFFFF` | `#131C2E` |
-| `--text` | `#0F172A` | `#F8FAFC` |
-| `--muted` | `#475569` | `#94A3B8` |
-| `--primary` | `#15803D`（白字 5:1） | `#22C55E`（深字） |
-| `--easy / --medium / --hard` | `#15803D / #B45309 / #DC2626` | `#4ADE80 / #FBBF24 / #F87171` |
+| `--bg` | `#17151F` | `#F6F5FA` |
+| `--surface` | `#201D2B` | `#FFFFFF` |
+| `--border` | `#2F2B3D` | `#E6E3EF` |
+| `--text` | `#F4F2FA` | `#1A1726` |
+| `--muted` | `#A39DB8`（卡片上 6.4:1） | `#5B5670`（7.0:1） |
+| `--primary` | `#2DD4BF`（深字 `#0B1F1C`，9.2:1） | `#0F766E`（白字 5.5:1） |
+| `--accent` | `#8B5CF6`（文字用 `#C4B5FD`） | `#7C3AED`（文字用 `#6D28D9`） |
+| `--series-1 / --series-2` | `#0EA5A0` / `#8B5CF6` | `#0D9488` / `#7C3AED` |
+| `--side-bg` | `#12101A` | `#12101A`（側欄兩種主題都是深色） |
 
-- 側欄固定使用深色（兩種主題皆同），強化「程式工具」識別。
-- 間距：4 / 8 / 12 / 16 / 24 / 32；圓角：6 / 10 / 14。
-- 動效：150ms `cubic-bezier(.2,.8,.2,1)`；`prefers-reduced-motion` 時關閉。
+- 圖表配色已用 dataviz 驗證器檢查：亮度帶、彩度、色盲 ΔE（深色 18.6、淺色 20.5）、對比，全部通過。
+- 字型：Poppins（介面英數）、Noto Sans TC（中文）、JetBrains Mono（程式碼與數字）。
+- 間距：4 / 8 / 12 / 16 / 24 / 32。圓角：8 / 12 / 16；chip 為 99px。
 
 ## 規則
 
-- 圖示一律使用 `lucide-react`，裝飾性圖示加 `aria-hidden`，純圖示按鈕要有 `aria-label`。
-- 程式字型**關閉連字**：教學中 `<>`、`>=` 必須照實顯示，不能變成 `≠`、`≥`。
-- 數字（統計、日期、列號）使用 mono + tabular-nums。
-- 難度只用外框色標籤（Easy/Medium/Hard），不靠顏色單獨傳達資訊（同時有文字）。
-- 按鈕高度 38px（小按鈕 32px），導覽列項目 40px。
+- 圖示一律使用 `lucide-react`。裝飾性圖示加 `aria-hidden`，純圖示按鈕要有 `aria-label`。
+- 程式字型**關閉連字**：`<>`、`>=` 必須照實顯示。
+- 狀態色（ok / warn / bad）只用於狀態，不拿來當圖表系列色。標籤一定同時有文字。
+- 圖表：
+  - 兩個系列時要有圖例。
+  - 要有十字準線和 tooltip，並提供「以表格檢視」。
+  - 只用一個 y 軸，數值文字使用文字色，不用系列色。
+- 按鈕高度 40px（小按鈕 32px）。側欄項目 64px；手機抽屜項目 46px。
