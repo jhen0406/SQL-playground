@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { chapters, mastery } from '../content';
 import { today, type DayStr } from '../lib/date';
 import { reviewStatus, type ReviewItem } from '../srs/schedule';
-import { db, getSettings, useLive, type ChapterProgress, type MasteryState } from './db';
+import { buildPlan, type PlanView } from '../lib/studyPlan';
+import { db, getSettings, useLive, useSettings, type ChapterProgress, type MasteryState } from './db';
 
 /** 讓「今天」在跨日或模擬日期改變時重新計算 */
 export function useToday(): DayStr {
@@ -71,4 +72,17 @@ export function useOpenedProblems(): Set<string> {
   for (const d of days ?? []) d.problemIds.forEach((id) => s.add(id));
   for (const id of states.keys()) s.add(id);
   return s;
+}
+
+/** 學習計畫的目前狀態（依設定、已完成章節與今天的日期計算） */
+export function useStudyPlan(): PlanView {
+  const day = useToday();
+  const done = useChapterProgress();
+  const { studyPlan } = useSettings();
+  const key = [...done.values()].map((c) => c.chapterId + c.completedDay).join(',');
+  return useMemo(
+    () => buildPlan(chapters.map((c) => c.id), new Map([...done.values()].map((c) => [c.chapterId, c.completedDay])), day, studyPlan),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [key, day, JSON.stringify(studyPlan)],
+  );
 }

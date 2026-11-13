@@ -361,6 +361,7 @@ ul.plain li { padding: 6px 0; }
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-areas:
     'w w w w w w w k k k k k'
+    'g g g g g g g g g g g g'
     'c c c c c c c c p p p p'
     't t t t t t t u u u u u';
 }
@@ -455,15 +456,15 @@ ul.plain li { padding: 6px 0; }
 .up-date span { font-size: 0.66rem; color: var(--muted); }
 
 @media (max-width: 1280px) {
-  .dash { grid-template-areas: 'w w w w w w w w w w w w' 'k k k k k k k k k k k k' 'c c c c c c c c p p p p' 't t t t t t t u u u u u'; }
+  .dash { grid-template-areas: 'w w w w w w w w w w w w' 'k k k k k k k k k k k k' 'g g g g g g g g g g g g' 'c c c c c c c c p p p p' 't t t t t t t u u u u u'; }
   .kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 1024px) {
-  .dash { grid-template-areas: 'w w w w w w w w w w w w' 'k k k k k k k k k k k k' 'c c c c c c c c c c c c' 'p p p p p p t t t t t t' 'u u u u u u u u u u u u'; }
+  .dash { grid-template-areas: 'w w w w w w w w w w w w' 'k k k k k k k k k k k k' 'g g g g g g g g g g g g' 'c c c c c c c c c c c c' 'p p p p p p t t t t t t' 'u u u u u u u u u u u u'; }
   .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 700px) {
-  .dash { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'w' 'k' 'c' 'p' 't' 'u'; }
+  .dash { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'w' 'k' 'g' 'c' 'p' 't' 'u'; }
   .welcome { flex-direction: column-reverse; align-items: flex-start; padding: var(--sp-5); }
   .ring { width: 96px; height: 96px; }
   .ring svg { width: 96px; height: 96px; }
@@ -817,3 +818,55 @@ a.chapter:hover, .daily-item:hover, .cal-cell:hover { box-shadow: inset 0 0 0 1p
 .pg-schema-head .ic-sm { color: var(--primary); }
 .pg-schema .schema-table { margin: var(--sp-2) 0; }
 .schema-toggle { margin: 4px var(--sp-2) var(--sp-2); }
+
+/* ---------- 學習計畫 ---------- */
+.plan-settings { display: flex; flex-direction: column; gap: var(--sp-3); margin-top: var(--sp-2); align-items: flex-start; }
+.plan-row { margin: 0; }
+.plan-num { width: 84px; }
+.plan-preview { display: flex; gap: var(--sp-2); align-items: flex-start; background: var(--surface-2); border-radius: 5px; padding: var(--sp-2) var(--sp-3); }
+.plan-preview .ic-sm { color: var(--primary); margin-top: 3px; }
+.soft-hr { border: 0; height: 1px; background: var(--surface-3); margin: var(--sp-4) 0; }
+/* 月曆：新章節（青綠）與複習（琥珀）兩種標記 */
+.cal-chips { display: flex; flex-direction: column; gap: 2px; align-items: flex-start; }
+.cal-chip { display: inline-block; font-size: 0.68rem; font-weight: 700; line-height: 1.5; padding: 0 6px; border-radius: 99px; white-space: nowrap; }
+.cal-chip.new { background: color-mix(in srgb, var(--c-learn) 22%, transparent); color: var(--c-learn); }
+.cal-chip.rev { background: color-mix(in srgb, var(--c-review) 22%, transparent); color: var(--c-review); }
+.cal-cell.has-new { background: color-mix(in srgb, var(--c-learn) 8%, var(--surface-2)); }
+.cal-cell.has-plan { background: color-mix(in srgb, var(--c-review) 8%, var(--surface-2)); }
+.cal-cell.has-new.has-plan { background: var(--surface-2); }
+.cal-band {
+  grid-column: 1 / -1; font-size: 0.78rem; font-weight: 600; color: var(--c-learn);
+  background: color-mix(in srgb, var(--c-learn) 14%, transparent); border-radius: 5px; padding: 4px 10px; margin-bottom: 2px;
+  overflow-wrap: anywhere;
+}
+.cal-notice { background: color-mix(in srgb, var(--c-learn) 14%, transparent); color: var(--text); border-radius: 5px; padding: var(--sp-2) var(--sp-3); margin-bottom: var(--sp-3); font-size: 0.88rem; }
+.cal-notice strong { color: var(--c-learn); }
+.sw-learn { background: var(--c-learn); }
+.sw-review { background: var(--c-review); }
+.cal-detail p { margin: 6px 0 0; }
+
+/* 總覽：目標進度卡 */
+.goal-card { grid-area: g; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr); gap: var(--sp-5); align-items: start; }
+.goal-card h2 { margin: 0; }
+.goal-off { display: flex; align-items: center; gap: var(--sp-4); }
+.goal-off > .ic { color: var(--primary); width: 28px; height: 28px; }
+.goal-off p { margin: 4px 0 0; }
+.goal-now, .goal-list, .goal-overall { display: flex; flex-direction: column; gap: var(--sp-2); min-width: 0; }
+.goal-items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.goal-items li { display: flex; align-items: center; gap: var(--sp-2); background: var(--surface-2); border-radius: 5px; padding: 6px var(--sp-3); min-height: 40px; }
+.goal-items li .ic-sm { color: var(--primary); }
+.goal-items li.is-done { color: var(--muted); }
+.goal-items li.is-done .grow { text-decoration: line-through; text-decoration-color: var(--muted); }
+.goal-big { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1.1; }
+.goal-facts { display: grid; grid-template-columns: auto 1fr; gap: 2px var(--sp-3); margin: 0; }
+.goal-facts dt { color: var(--muted); }
+.goal-facts dd { margin: 0; }
+@media (max-width: 1024px) {
+  .goal-card { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .goal-list { grid-column: 1 / -1; grid-row: 2; }
+}
+@media (max-width: 700px) {
+  .goal-card { grid-template-columns: minmax(0, 1fr); }
+  .goal-list { grid-row: auto; }
+  .goal-off { flex-wrap: wrap; }
+}

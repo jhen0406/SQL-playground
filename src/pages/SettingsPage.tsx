@@ -5,6 +5,7 @@ import { DEFAULT_OFFSETS } from '../srs/schedule';
 import { getDayOffset, setDayOffset } from '../lib/date';
 import { applyTheme, getThemePref, type ThemePref } from '../lib/theme';
 import { aiAvailable } from '../grading/aiReview';
+import { StudyPlanSettings } from '../components/StudyPlanSettings';
 
 export function SettingsPage() {
   const s = useSettings();
@@ -78,6 +79,8 @@ export function SettingsPage() {
     <div className="page settings">
       <h1>設定</h1>
       {msg && <div className="alert alert-info">{msg}</div>}
+
+      <StudyPlanSettings />
 
       <section className="card">
         <h2>複習排程（艾賓浩斯遺忘曲線）</h2>

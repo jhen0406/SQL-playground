@@ -32,3 +32,11 @@ export function getDataset(ex: Exercise): Dataset {
   if (!ds) throw new Error('Unknown dataset ' + ex.datasetId);
   return ds;
 }
+
+/** 章節 id 清單 → 「第 5–7 章」或「第 3、5 章」 */
+export function chapterRange(ids: string[]): string {
+  const nums = ids.map((id) => getChapter(id)?.order ?? 0).sort((a, b) => a - b);
+  if (!nums.length) return '';
+  const contiguous = nums.every((n, i) => i === 0 || n === nums[i - 1] + 1);
+  return contiguous && nums.length > 1 ? `第 ${nums[0]}–${nums[nums.length - 1]} 章` : `第 ${nums.join('、')} 章`;
+}

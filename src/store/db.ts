@@ -2,6 +2,7 @@ import Dexie, { liveQuery, type Table } from 'dexie';
 import { useEffect, useState } from 'react';
 import type { ReviewItem } from '../srs/schedule';
 import { DEFAULT_OFFSETS } from '../srs/schedule';
+import { DEFAULT_STUDY_PLAN, type StudyPlan } from '../lib/studyPlan';
 
 export type ActivityType = 'learn' | 'practice' | 'review' | 'mastery';
 
@@ -72,6 +73,8 @@ export interface Settings {
   dailyCount: number;
   /** 頭像插圖編號（src/components/Avatars.tsx） */
   avatar: number;
+  /** 學習計畫（新章節進度）：src/lib/studyPlan.ts */
+  studyPlan: StudyPlan;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -80,6 +83,7 @@ export const DEFAULT_SETTINGS: Settings = {
   masteryUnlocked: false,
   dailyCount: 2,
   avatar: 0,
+  studyPlan: DEFAULT_STUDY_PLAN,
 };
 
 class AppDB extends Dexie {
@@ -124,7 +128,9 @@ export function useLive<T>(query: () => Promise<T> | T, deps: unknown[] = [], in
 
 export async function getSettings(): Promise<Settings> {
   const row = await db.kv.get('settings');
-  return { ...DEFAULT_SETTINGS, ...((row?.value as Partial<Settings>) ?? {}) };
+  const saved = (row?.value as Partial<Settings>) ?? {};
+  // studyPlan 是巢狀物件：舊資料沒有某些欄位時補上預設值
+  return { ...DEFAULT_SETTINGS, ...saved, studyPlan: { ...DEFAULT_STUDY_PLAN, ...(saved.studyPlan ?? {}) } };
 }
 
 export async function saveSettings(patch: Partial<Settings>) {

@@ -9,8 +9,8 @@ import { dueReviews, useReviews, useToday } from '../store/hooks';
 import { warmUp } from '../db/engine';
 import { cloudEnabled, initCloud, useCloud } from '../store/cloud';
 import {
-  ArrowRight, BellRing, BookOpen, CalendarDays, Database, LayoutDashboard, Menu, Moon, NotebookPen,
-  RotateCcw, Settings, Sun, Trophy, UserRound, X, type LucideIcon,
+  ArrowRight, BellRing, BookOpen, CalendarCheck, CalendarDays, Database, LayoutDashboard, Menu, Moon, NotebookPen,
+  Settings, Sun, Trophy, UserRound, X, type LucideIcon,
 } from 'lucide-react';
 
 interface NavItem {
@@ -26,7 +26,7 @@ const NAV: NavItem[] = [
   { to: '/', label: '總覽', short: '總覽', icon: LayoutDashboard, end: true },
   { to: '/learn', label: '入門課程', short: '課程', icon: BookOpen },
   { to: '/mastery', label: '精熟挑戰', short: '精熟', icon: Trophy },
-  { to: '/plan', label: '複習計畫', short: '複習', icon: RotateCcw },
+  { to: '/plan', label: '學習計畫', short: '計畫', icon: CalendarCheck },
   { to: '/history', label: '學習紀錄', short: '紀錄', icon: CalendarDays },
   { to: '/notes', label: '重點筆記', short: '筆記', icon: NotebookPen },
 ];

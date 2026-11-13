@@ -7,6 +7,7 @@ import { accuracy, dailySeries, streaks, type DayPoint } from '../lib/stats';
 import { db, useLive, useSettings } from '../store/db';
 import { allChaptersDone, dueReviews, ensureDailySet, useChapterProgress, useMasteryStates, useReviews, useToday } from '../store/hooks';
 import { dueDayNumber } from '../srs/schedule';
+import { GoalCard } from '../components/GoalCard';
 
 const CHART_DAYS = 28;
 const SPARK_DAYS = 14;
@@ -139,6 +140,9 @@ export function Dashboard() {
           tone={due.length ? 'warn' : undefined}
         />
       </div>
+
+      {/* 學習計畫的目標進度 */}
+      <GoalCard />
 
       {/* 每日學習量 + 各部分進度 */}
       <section className="card chart-card" aria-labelledby="act-h">
@@ -307,7 +311,7 @@ export function Dashboard() {
           ))}
         </ul>
         <Link to="/plan" className="small inline-ic">
-          查看完整複習計畫
+          查看學習計畫
           <ArrowRight className="ic-sm" aria-hidden />
         </Link>
       </section>

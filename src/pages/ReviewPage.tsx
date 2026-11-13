@@ -47,7 +47,7 @@ export function ReviewPage() {
   return (
     <div className="page">
       <div className="crumbs small">
-        <Link to="/plan">複習計畫</Link> / 複習
+        <Link to="/plan">學習計畫</Link> / 複習
       </div>
       <h1>
         複習 · 第 {ch.order} 章 {ch.title}
