@@ -10,7 +10,8 @@ import { db, exportAll, importAll } from './db';
  * 沒有設定 VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY 時整個功能停用，App 以訪客模式運作。
  */
 
-const URL_ = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+// 只取專案網址（https://xxx.supabase.co）；貼成後台的 API 網址（…/rest/v1/）也能用
+const URL_ = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim().replace(/\/(rest|auth)\/v1\/?.*$/, '').replace(/\/+$/, '');
 const KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 export const supabase = URL_ && KEY ? createClient(URL_, KEY) : null;
 export const cloudEnabled = !!supabase;
@@ -230,7 +231,7 @@ export async function signIn(email: string, password: string) {
 /** 回傳 true 代表已直接登入；false 代表需要先到信箱確認 */
 export async function signUp(email: string, password: string): Promise<boolean> {
   if (!supabase) throw new Error('尚未設定雲端');
-  const { data, error } = await supabase.auth.signUp({ email, password });
+  const { data, error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin + '/account' } });
   if (error) throw new Error(zhError(error.message));
   return !!data.session;
 }
