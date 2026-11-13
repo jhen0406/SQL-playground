@@ -4,6 +4,7 @@ import { getChapter } from '../content';
 import { getDayOffset, prettyDay } from '../lib/date';
 import { applyTheme, useTheme } from '../lib/theme';
 import { useSettings } from '../store/db';
+import { AvatarSvg } from './Avatars';
 import { dueReviews, useReviews, useToday } from '../store/hooks';
 import { warmUp } from '../db/engine';
 import { cloudEnabled, initCloud, useCloud } from '../store/cloud';
@@ -145,12 +146,13 @@ function ThemeToggle() {
 /** 頂部列右側的帳號頭像（同步狀態以小圓點表示） */
 function AccountAvatar() {
   const cloud = useCloud();
+  const settings = useSettings();
   const email = cloud.session?.user.email;
   const state = !cloudEnabled || !email ? 'guest' : cloud.state;
   const label = !cloudEnabled ? '帳號（訪客模式）' : !email ? '登入以同步紀錄' : `${email}（${{ off: '', idle: '已同步', syncing: '同步中', error: '同步失敗', conflict: '需要選擇保留哪份紀錄' }[cloud.state]}）`;
   return (
     <NavLink to="/account" className={({ isActive }) => 'avatar ' + (isActive ? 'on' : '')} aria-label={label} title={label}>
-      {email ? <span className="avatar-letter">{email[0].toUpperCase()}</span> : <UserRound className="ic-sm" aria-hidden />}
+      <AvatarSvg id={settings.avatar} />
       <span className={'avatar-dot ' + state} aria-hidden />
     </NavLink>
   );

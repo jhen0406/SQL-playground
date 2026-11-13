@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { AlertTriangle, Cloud, CloudOff, Loader2, LogOut, RefreshCw, UserRound } from 'lucide-react';
+import { AVATARS, AvatarSvg, avatarById } from '../components/Avatars';
+import { saveSettings, useSettings } from '../store/db';
 import { cloudEnabled, push, reconcile, resolveConflict, signIn, signOut, signUp, useCloud } from '../store/cloud';
 
 function fmt(iso: string | null) {
@@ -14,6 +16,7 @@ export function AccountPage() {
     return (
       <div className="page narrow-page">
         <h1>帳號</h1>
+        <AvatarPicker />
         <div className="card empty-state">
           <CloudOff className="ic-lg" aria-hidden />
           <strong>尚未設定雲端</strong>
@@ -30,6 +33,7 @@ export function AccountPage() {
   return (
     <div className="page narrow-page">
       <h1>帳號</h1>
+      <AvatarPicker />
       {cloud.session ? <SignedIn email={cloud.session.user.email ?? ''} cloud={cloud} /> : <AuthForm />}
     </div>
   );
@@ -152,6 +156,39 @@ function AuthForm() {
         </button>
       </form>
       <p className="muted small">登入後，學習紀錄會同步到雲端，換電腦或手機都看得到。不登入也能照常使用，紀錄只存在這個瀏覽器。</p>
+    </section>
+  );
+}
+
+/** 選擇頭像：存在設定裡，登入後會跟著雲端同步 */
+function AvatarPicker() {
+  const { avatar } = useSettings();
+  const cur = avatarById(avatar);
+  return (
+    <section className="card avatar-card" aria-labelledby="avatar-h">
+      <div className="avatar-card-head">
+        <AvatarSvg id={cur.id} />
+        <div>
+          <h2 id="avatar-h" style={{ margin: 0 }}>頭像</h2>
+          <span className="muted small">目前：{cur.name}</span>
+        </div>
+      </div>
+      <div className="avatar-picker" role="radiogroup" aria-label="選擇頭像">
+        {AVATARS.map((a) => (
+          <button
+            key={a.id}
+            type="button"
+            role="radio"
+            aria-checked={a.id === cur.id}
+            aria-label={a.name}
+            title={a.name}
+            className="avatar-opt"
+            onClick={() => saveSettings({ avatar: a.id })}
+          >
+            <AvatarSvg id={a.id} />
+          </button>
+        ))}
+      </div>
     </section>
   );
 }

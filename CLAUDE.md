@@ -60,6 +60,10 @@ npm run build      # tsc --noEmit && vite build
   - hover／選中狀態用 `box-shadow: inset 0 0 0 1px`，不用 border。
 - 版面：左邊是 92px 寬的窄圖示側欄，加上頂部列；寬度 ≤ 860px 時側欄變成抽屜。
 - 字型：Chiron GoRound TC（介面，中英文都用它）＋ JetBrains Mono（程式碼）。**程式字型必須關閉連字**，否則 `<>`、`>=` 會顯示成 `≠`、`≥`。
+- Logo 沒有底色，只是青綠色的 `Database` 圖示。
+- 頭像是 5 張扁平插畫風格的手繪 SVG（`src/components/Avatars.tsx`），使用者在帳號頁挑選。
+  - 選擇存在 `Settings.avatar`，會跟著雲端同步。
+  - 插圖的顏色寫在元件裡，不走主題 token。
 - 圖示只用 `lucide-react`。裝飾性圖示加 `aria-hidden`，純圖示按鈕要有 `aria-label`。
 - 圖表：手寫 SVG，系列色用 `--series-1` / `--series-2`（已通過 dataviz 驗證器檢查）。要有圖例、tooltip 和表格檢視。
 

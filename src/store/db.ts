@@ -70,6 +70,8 @@ export interface Settings {
   notifications: boolean;
   masteryUnlocked: boolean;
   dailyCount: number;
+  /** 頭像插圖編號（src/components/Avatars.tsx） */
+  avatar: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -77,6 +79,7 @@ export const DEFAULT_SETTINGS: Settings = {
   notifications: true,
   masteryUnlocked: false,
   dailyCount: 2,
+  avatar: 0,
 };
 
 class AppDB extends Dexie {
