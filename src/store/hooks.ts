@@ -48,6 +48,11 @@ export function isChapterUnlocked(index: number, done: Map<string, ChapterProgre
   return done.has(chapters[index - 1].id) || done.has(chapters[index].id);
 }
 
+/** 題型組是否開放：前置章節全部學完，或在設定中手動解鎖 */
+export function isPatternOpen(requires: string[], done: Map<string, ChapterProgress>, unlocked: boolean): boolean {
+  return unlocked || requires.every((id) => done.has(id));
+}
+
 export function allChaptersDone(done: Map<string, ChapterProgress>): boolean {
   return chapters.every((c) => done.has(c.id));
 }

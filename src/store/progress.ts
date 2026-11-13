@@ -39,6 +39,15 @@ export async function finishReview(chapterId: string, title: string, correct: bo
 }
 
 export async function recordMastery(problemId: string, title: string, pass: boolean, sql: string) {
+  await recordChallenge('mastery', problemId, title, pass, sql);
+}
+
+/** 題型特訓的作答狀態也存在 mastery 表（id 以 d- 開頭，不會和精熟題混在一起統計）。 */
+export async function recordDrill(problemId: string, title: string, pass: boolean, sql: string) {
+  await recordChallenge('drill', problemId, title, pass, sql);
+}
+
+async function recordChallenge(type: 'mastery' | 'drill', problemId: string, title: string, pass: boolean, sql: string) {
   const cur = (await db.mastery.get(problemId)) ?? { problemId, solved: false, attempts: 0 };
   const next = {
     ...cur,
@@ -47,7 +56,7 @@ export async function recordMastery(problemId: string, title: string, pass: bool
     firstSolvedDay: cur.firstSolvedDay ?? (pass ? today() : undefined),
   };
   await db.mastery.put(next);
-  await logActivity({ type: 'mastery', refId: problemId, title, correct: pass, sql });
+  await logActivity({ type, refId: problemId, title, correct: pass, sql });
 }
 
 export async function saveDraft(key: string, sql: string) {

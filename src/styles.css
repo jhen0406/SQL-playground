@@ -47,6 +47,7 @@
   --c-practice: #8f89a6;
   --c-review: #d97706;
   --c-mastery: #7c3aed;
+  --c-drill: #db2777;
   --side-bg: #12101a;
   --side-text: #c9c4db;
   --side-muted: #8f89a6;
@@ -114,6 +115,7 @@
   --c-practice: #a39db8;
   --c-review: #fbbf24;
   --c-mastery: #a78bfa;
+  --c-drill: #f472b6;
   --shadow-sm: none;
   --shadow-md: 0 12px 32px -12px rgba(0, 0, 0, 0.6);
   color-scheme: dark;
@@ -291,6 +293,7 @@ ul.plain li { padding: 6px 0; }
 .tag-warn { background: var(--warn-soft); color: var(--warn); }
 .tag-bad { background: var(--bad-soft); color: var(--bad); }
 .tag-blue { background: var(--info-soft); color: var(--info); }
+.tag-drill { background: color-mix(in srgb, var(--c-drill) 16%, transparent); color: var(--c-drill); }
 .diff-Easy, .diff-Medium, .diff-Hard { background: transparent; border: 1px solid currentColor; }
 .diff-Easy { color: var(--easy); }
 .diff-Medium { color: var(--medium); }
@@ -615,6 +618,7 @@ a.chapter:hover { border-color: var(--primary); text-decoration: none; box-shado
 .dot-t.practice { background: var(--c-practice); }
 .dot-t.review { background: var(--c-review); }
 .dot-t.mastery { background: var(--c-mastery); }
+.dot-t.drill { background: var(--c-drill); }
 .legend { display: flex; gap: var(--sp-4); flex-wrap: wrap; margin-top: var(--sp-3); }
 .legend span { display: inline-flex; gap: 6px; align-items: center; }
 
@@ -635,6 +639,7 @@ a.chapter:hover { border-color: var(--primary); text-decoration: none; box-shado
 .week-item.learn { border-color: var(--c-learn); }
 .week-item.review { border-color: var(--c-review); }
 .week-item.mastery { border-color: var(--c-mastery); }
+.week-item.drill { border-color: var(--c-drill); }
 .week-title { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .week-item-h { display: flex; align-items: center; justify-content: space-between; gap: 4px; width: 100%; }
 .week-item .tag:not([class*='tag-']) { background: var(--surface-3); }
@@ -872,3 +877,16 @@ a.chapter:hover, .daily-item:hover, .cal-cell:hover { box-shadow: inset 0 0 0 1p
   .goal-list { grid-row: auto; }
   .goal-off { flex-wrap: wrap; }
 }
+
+/* 題型特訓 */
+.drill-h { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; }
+.drill-h .muted { font-weight: 500; }
+.drill-template { margin: var(--sp-3) 0; }
+.drill-template > summary { cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px; list-style: none; }
+.drill-template > summary::-webkit-details-marker { display: none; }
+.drill-template > summary svg { transition: transform 0.15s; transform: rotate(-90deg); }
+.drill-template[open] > summary svg { transform: none; }
+.drill-template[open] > summary { margin-bottom: var(--sp-2); }
+.drill-template.inline { background: var(--surface-2); border-radius: 5px; padding: var(--sp-2) var(--sp-3); }
+.drill-ref { min-width: 3.5em; text-align: right; }
+

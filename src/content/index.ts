@@ -1,4 +1,4 @@
-import type { Chapter, Dataset, Exercise, MasteryProblem } from './types';
+import type { Chapter, Dataset, DrillPattern, DrillProblem, Exercise, MasteryProblem } from './types';
 import { shop } from './datasets/shop';
 import { ecommerce, hr, saas } from './datasets/business';
 import { part1 } from './chapters/part1';
@@ -6,8 +6,17 @@ import { part2 } from './chapters/part2';
 import { part3 } from './chapters/part3';
 import { part4 } from './chapters/part4';
 import { masteryProblems } from './mastery/problems';
+import { drillDatasets } from './datasets/drills';
+import { drillPatterns as patterns } from './drills/patterns';
+import { drillProblems } from './drills/problems';
 
-export const datasets: Record<string, Dataset> = { shop, ecommerce, hr, saas };
+export const datasets: Record<string, Dataset> = {
+  shop,
+  ecommerce,
+  hr,
+  saas,
+  ...Object.fromEntries(drillDatasets.map((d) => [d.id, d])),
+};
 
 export const chapters: Chapter[] = [...part1, ...part2, ...part3, ...part4].sort((a, b) => a.order - b.order);
 
@@ -18,6 +27,18 @@ export const PART_LABELS: Record<Chapter['part'], string> = {
 };
 
 export const mastery: MasteryProblem[] = masteryProblems;
+
+/** 題型特訓：題型組與題目（題目依題型組順序排列） */
+export const drillPatterns: DrillPattern[] = patterns;
+export const drills: DrillProblem[] = patterns.flatMap((pt) => drillProblems.filter((p) => p.patternId === pt.id));
+
+export function getDrill(id: string): DrillProblem | undefined {
+  return drills.find((p) => p.id === id);
+}
+
+export function getPattern(id: string): DrillPattern | undefined {
+  return drillPatterns.find((p) => p.id === id);
+}
 
 export function getChapter(id: string): Chapter | undefined {
   return chapters.find((c) => c.id === id);

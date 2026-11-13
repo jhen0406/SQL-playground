@@ -13,7 +13,10 @@ import { SchemaPanel, useTables } from './SchemaPanel';
 import { SqlEditor } from './SqlEditor';
 import { BookOpenCheck, Bot, CheckCircle2, Database, Eye, Lightbulb, Loader2, Lock, Play, RotateCcw, Send, Terminal, XCircle } from 'lucide-react';
 
-export type PlaygroundMode = 'practice' | 'review' | 'mastery';
+export type PlaygroundMode = 'practice' | 'review' | 'mastery' | 'drill';
+
+/** 精熟題與題型特訓：提交後即開放解答，並提供 AI 批改 */
+const isChallenge = (m: PlaygroundMode) => m === 'mastery' || m === 'drill';
 
 interface Props {
   exercise: Exercise;
@@ -101,8 +104,8 @@ export function Playground({ exercise, mode, header, extraInfo, onGraded }: Prop
     const subId = await recordSubmission(exercise.id, sql, g.pass, g.summary);
     await onGraded?.(g, sql);
     setRunning(null);
-    if (g.pass && mode !== 'mastery') setShowSolution(true);
-    if (mode === 'mastery') {
+    if (g.pass && !isChallenge(mode)) setShowSolution(true);
+    if (isChallenge(mode)) {
       setShowSolution(true);
       if (aiOn) {
         setAi({ status: 'loading' });
@@ -238,7 +241,7 @@ export function Playground({ exercise, mode, header, extraInfo, onGraded }: Prop
               判題結果
               {grade && <span className={grade.pass ? 'dot ok' : 'dot bad'} />}
             </button>
-            {mode === 'mastery' && (
+            {isChallenge(mode) && (
               <button role="tab" aria-selected={outTab === 'ai'} className={outTab === 'ai' ? 'on' : ''} onClick={() => setOutTab('ai')}>
                 AI 批改
               </button>
@@ -364,7 +367,7 @@ function SolutionBox({ exercise, show, canReveal, onReveal, mode }: { exercise: 
           </ul>
         </>
       )}
-      {mode === 'mastery' && <p className="muted small">寫法不只一種：結果正確即可。AI 批改分頁會針對你的寫法說明差異。</p>}
+      {isChallenge(mode) && <p className="muted small">寫法不只一種：結果正確即可。AI 批改分頁會針對你的寫法說明差異。</p>}
     </div>
   );
 }

@@ -3,7 +3,7 @@ import type { PGlite } from '@electric-sql/pglite';
 import { createPGlite } from '../src/db/pglite';
 import { runInSandbox } from '../src/db/sandbox';
 import { gradeExercise, type Runner } from '../src/grading/grade';
-import { getChapter, getProblem, getDataset } from '../src/content';
+import { getChapter, getProblem, getDrill, getDataset } from '../src/content';
 import type { Exercise } from '../src/content/types';
 
 let db: PGlite;
@@ -90,4 +90,57 @@ describe('判題會擋下常見錯誤', () => {
     const g = await grade(getProblem('m-e07')!, 'SELECT MAX(salary) AS second_highest_salary FROM employees WHERE salary < (SELECT MAX(salary) FROM employees);');
     expect(g.pass).toBe(true);
   });
+});
+
+describe('題型特訓：常見錯誤會被判錯、正確的替代寫法會通過', () => {
+  const D = (id: string) => getDrill(id)!;
+  const wrong: [string, string, string][] = [
+    ['d-01', 'INNER JOIN 漏掉 0 次', 'SELECT s.student_id, s.student_name, e.subject_name, COUNT(*) AS attended_exams FROM students s JOIN examinations e ON e.student_id = s.student_id GROUP BY s.student_id, s.student_name, e.subject_name ORDER BY s.student_id, e.subject_name;'],
+    ['d-01', 'COUNT(*) 把 0 算成 1', 'SELECT s.student_id, s.student_name, sub.subject_name, COUNT(*) AS attended_exams FROM students s CROSS JOIN subjects sub LEFT JOIN examinations e ON e.student_id = s.student_id AND e.subject_name = sub.subject_name GROUP BY s.student_id, s.student_name, sub.subject_name ORDER BY s.student_id, sub.subject_name;'],
+    ['d-02', 'GROUP BY CASE 少了 0 人級距', "SELECT CASE WHEN income < 20000 THEN 'Low Salary' WHEN income <= 50000 THEN 'Average Salary' ELSE 'High Salary' END AS category, COUNT(*) AS accounts_count FROM accounts GROUP BY 1;"],
+    ['d-03', '用 id 相減', 'SELECT cur.id FROM weather cur JOIN weather prev ON cur.id = prev.id + 1 WHERE cur.temperature > prev.temperature;'],
+    ['d-03', '用 LAG 比較前一列', 'SELECT id FROM (SELECT id, temperature, LAG(temperature) OVER (ORDER BY record_date) AS p FROM weather) t WHERE temperature > p;'],
+    ['d-04', '只看總次數', 'SELECT num AS consecutive_nums FROM logs GROUP BY num HAVING COUNT(*) >= 3;'],
+    ['d-04', '忘了 DISTINCT', 'SELECT num AS consecutive_nums FROM (SELECT num, LAG(num) OVER (ORDER BY id) p, LEAD(num) OVER (ORDER BY id) n FROM logs) t WHERE num = p AND num = n;'],
+    ['d-05', 'COUNT 沒有 DISTINCT', 'SELECT customer_id FROM customer GROUP BY customer_id HAVING COUNT(product_key) = (SELECT COUNT(*) FROM product);'],
+    ['d-05', '商品數寫死', 'SELECT customer_id FROM customer GROUP BY customer_id HAVING COUNT(DISTINCT product_key) = 2;'],
+    ['d-06', '計數混入選修', 'SELECT student_name FROM enrollments GROUP BY student_name HAVING COUNT(*) = (SELECT COUNT(*) FROM courses WHERE is_required);'],
+    ['d-07', '從 confirmations 開始，漏掉沒訊息的人', "SELECT user_id, ROUND(AVG(CASE WHEN action = 'confirmed' THEN 1.0 ELSE 0 END), 2) AS confirmation_rate FROM confirmations GROUP BY user_id;"],
+    ['d-08', '整數除法', 'SELECT query_name, ROUND(AVG(rating / position), 2) AS quality, ROUND(AVG(CASE WHEN rating < 3 THEN 100.0 ELSE 0 END), 2) AS poor_query_percentage FROM queries GROUP BY query_name;'],
+    ['d-09', '只檢查乘客', "SELECT t.request_at AS day, ROUND(AVG(CASE WHEN t.status LIKE 'cancelled%' THEN 1.0 ELSE 0 END), 2) AS cancellation_rate FROM trips t JOIN users c ON c.users_id = t.client_id AND c.banned = 'No' WHERE t.request_at BETWEEN '2024-10-01' AND '2024-10-03' GROUP BY t.request_at;"],
+    ['d-10', '漏掉沒調價的商品', "SELECT pc.product_id, pc.new_price AS price FROM price_changes pc WHERE (pc.product_id, pc.change_date) IN (SELECT product_id, MAX(change_date) FROM price_changes WHERE change_date <= '2024-08-16' GROUP BY product_id);"],
+    ['d-11', '任兩天連續就算', 'SELECT ROUND(COUNT(DISTINCT a.player_id)::NUMERIC / (SELECT COUNT(DISTINCT player_id) FROM activity), 2) AS fraction FROM activity a JOIN activity b ON b.player_id = a.player_id AND b.event_date = a.event_date + 1;'],
+    ['d-12', '依 person_id 累計', 'SELECT person_name FROM (SELECT person_name, person_id, SUM(weight) OVER (ORDER BY person_id) AS t FROM queue) x WHERE t <= 1000 ORDER BY person_id DESC LIMIT 1;'],
+    ['d-13', '沒處理最後一個奇數座位', 'SELECT CASE WHEN id % 2 = 1 THEN id + 1 ELSE id - 1 END AS id, student FROM seat ORDER BY id;'],
+    ['d-13', '最大 id 寫死', 'SELECT CASE WHEN id = 5 THEN id WHEN id % 2 = 1 THEN id + 1 ELSE id - 1 END AS id, student FROM seat ORDER BY id;'],
+    ['d-14', '用 UNION', "(SELECT u.name AS results FROM movie_rating r JOIN users u ON u.user_id = r.user_id GROUP BY u.user_id, u.name ORDER BY COUNT(*) DESC, u.name LIMIT 1) UNION (SELECT m.title FROM movie_rating r JOIN movies m ON m.movie_id = r.movie_id WHERE r.created_at >= '2024-02-01' AND r.created_at < '2024-03-01' GROUP BY m.movie_id, m.title ORDER BY AVG(r.rating) DESC, m.title LIMIT 1);"],
+    ['d-15', '只算邀請者', 'SELECT requester_id AS id, COUNT(*) AS num FROM request_accepted GROUP BY requester_id ORDER BY num DESC LIMIT 1;'],
+    ['d-16', '用 INITCAP', 'SELECT user_id, INITCAP(name) AS name FROM users ORDER BY user_id;'],
+    ['d-17', "LIKE '%DIAB1%'", "SELECT patient_id, patient_name, conditions FROM patients WHERE conditions LIKE '%DIAB1%';"],
+    ['d-18', '點沒有跳脫', "SELECT user_id, name, mail FROM members WHERE mail ~ '^[A-Za-z][A-Za-z0-9_.-]*@sqlpg.com$';"],
+    ['d-18', '不分大小寫', "SELECT user_id, name, mail FROM members WHERE mail ~* '^[A-Za-z][A-Za-z0-9_.-]*@sqlpg\\.com$';"],
+    ['d-19', '沒有 DISTINCT', "SELECT sell_date, COUNT(product) AS num_sold, STRING_AGG(product, ',' ORDER BY product) AS products FROM sales_log GROUP BY sell_date ORDER BY sell_date;"],
+    ['d-21', '<> 會刪光重複列', 'DELETE FROM person p1 WHERE EXISTS (SELECT 1 FROM person p2 WHERE p2.email = p1.email AND p2.id <> p1.id);'],
+  ];
+  for (const [id, why, sql] of wrong) {
+    it(`${id}：${why}`, async () => {
+      const g = await grade(D(id), sql);
+      expect(g.pass).toBe(false);
+    });
+  }
+
+  const right: [string, string, string][] = [
+    ['d-02', 'VALUES + LEFT JOIN', "SELECT v.category, COUNT(a.account_id) AS accounts_count FROM (VALUES ('Low Salary'), ('Average Salary'), ('High Salary')) v(category) LEFT JOIN accounts a ON v.category = CASE WHEN a.income < 20000 THEN 'Low Salary' WHEN a.income <= 50000 THEN 'Average Salary' ELSE 'High Salary' END GROUP BY v.category;"],
+    ['d-04', '三次自我連接', 'SELECT DISTINCT l1.num AS consecutive_nums FROM logs l1 JOIN logs l2 ON l2.id = l1.id + 1 JOIN logs l3 ON l3.id = l1.id + 2 WHERE l1.num = l2.num AND l2.num = l3.num;'],
+    ['d-06', '計數寫法', 'SELECT e.student_name FROM enrollments e JOIN courses c ON c.course_name = e.course_name WHERE c.is_required GROUP BY e.student_name HAVING COUNT(DISTINCT c.course_name) = (SELECT COUNT(*) FROM courses WHERE is_required);'],
+    ['d-10', 'ROW_NUMBER 寫法', "SELECT p.product_id, COALESCE(x.new_price, 10) AS price FROM (SELECT DISTINCT product_id FROM price_changes) p LEFT JOIN (SELECT product_id, new_price, ROW_NUMBER() OVER (PARTITION BY product_id ORDER BY change_date DESC) rn FROM price_changes WHERE change_date <= '2024-08-16') x ON x.product_id = p.product_id AND x.rn = 1;"],
+    ['d-17', '正規表示式', "SELECT patient_id, patient_name, conditions FROM patients WHERE conditions ~ '(^| )DIAB1';"],
+    ['d-21', 'NOT IN MIN(id)', 'DELETE FROM person WHERE id NOT IN (SELECT MIN(id) FROM person GROUP BY email);'],
+  ];
+  for (const [id, why, sql] of right) {
+    it(`${id}：${why} 也算對`, async () => {
+      const g = await grade(D(id), sql);
+      expect(g.pass, g.summary).toBe(true);
+    });
+  }
 });

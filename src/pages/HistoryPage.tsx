@@ -9,8 +9,8 @@ import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, List, XCircle } 
 type Range = 'day' | 'week' | 'month';
 type View = 'list' | 'calendar';
 
-const TYPE_LABEL: Record<ActivityType, string> = { learn: '學完章節', practice: '章節練習', review: '複習', mastery: '精熟題' };
-const TYPE_CLASS: Record<ActivityType, string> = { learn: 'tag-ok', practice: '', review: 'tag-warn', mastery: 'tag-blue' };
+const TYPE_LABEL: Record<ActivityType, string> = { learn: '學完章節', practice: '章節練習', review: '複習', mastery: '精熟題', drill: '題型特訓' };
+const TYPE_CLASS: Record<ActivityType, string> = { learn: 'tag-ok', practice: '', review: 'tag-warn', mastery: 'tag-blue', drill: 'tag-drill' };
 
 /** 標題前綴「學完：」等已由標籤表示，週曆裡省略 */
 const stripPrefix = (t: string) => t.replace(/^(學完|練習|複習)：/, '');
@@ -133,6 +133,7 @@ export function HistoryPage() {
             <span><i className="dot-t practice" /> 練習</span>
             <span><i className="dot-t review" /> 複習</span>
             <span><i className="dot-t mastery" /> 精熟題</span>
+            <span><i className="dot-t drill" /> 題型特訓</span>
           </div>
           {(range === 'day' || selected) && (
             <div className="mt">

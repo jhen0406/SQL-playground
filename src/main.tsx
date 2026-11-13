@@ -10,6 +10,7 @@ import { ChapterPage } from './pages/ChapterPage';
 import { ReviewPage } from './pages/ReviewPage';
 import { MasteryIndex, MasteryProblemPage } from './pages/MasteryPages';
 import { HistoryPage } from './pages/HistoryPage';
+import { DrillIndex, DrillProblemPage } from './pages/DrillPages';
 import { PlanPage } from './pages/PlanPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { NotesPage } from './pages/NotesPage';
@@ -28,6 +29,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="review/:id" element={<ReviewPage />} />
           <Route path="mastery" element={<MasteryIndex />} />
           <Route path="mastery/:id" element={<MasteryProblemPage />} />
+          <Route path="drills" element={<DrillIndex />} />
+          <Route path="drills/:id" element={<DrillProblemPage />} />
           <Route path="history" element={<HistoryPage />} />
           <Route path="plan" element={<PlanPage />} />
           <Route path="notes" element={<NotesPage />} />

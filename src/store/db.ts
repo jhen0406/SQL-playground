@@ -4,7 +4,7 @@ import type { ReviewItem } from '../srs/schedule';
 import { DEFAULT_OFFSETS } from '../srs/schedule';
 import { DEFAULT_STUDY_PLAN, type StudyPlan } from '../lib/studyPlan';
 
-export type ActivityType = 'learn' | 'practice' | 'review' | 'mastery';
+export type ActivityType = 'learn' | 'practice' | 'review' | 'mastery' | 'drill';
 
 export interface Activity {
   id?: number;

@@ -15,7 +15,7 @@
 
 ```bash
 npm run dev        # vite (5173) + API server (8787)，用 concurrently 同時啟動
-npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 143 個測試
+npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 200 個測試
 npm run build      # tsc --noEmit && vite build
 ```
 
@@ -44,6 +44,11 @@ npm run build      # tsc --noEmit && vite build
   - 只綁定 `127.0.0.1:${API_PORT}`。不要用 `PORT` 這個環境變數，預覽環境會設 `PORT=5173`，造成衝突。
   - 沒有 API key 時，前端改成顯示內建的標準解。
   - 呼叫 API 要花錢，沒經使用者同意不要實際呼叫。
+- **題型特訓**（`/drills`，`src/pages/DrillPages.tsx`）：LeetCode 經典題型（補零、相鄰列、關聯除法、比率、某時點的值、累計、重排、平手、字串、刪重複）。
+  - 題型組在 `src/content/drills/patterns.ts`（`requires` 是前置章節，全部學完才開放；設定的「解鎖精熟」也會一併開放），題目在 `src/content/drills/problems.ts`，id 前綴 `d-`。
+  - 每組有自己的小資料集（`src/content/datasets/drills.ts`，id 前綴 `dr-`），隱藏測資專門放陷阱；`tests/wrong-answers.test.ts` 列了每組要被判錯的寫法。
+  - 作答狀態**共用 `db.mastery` 表**（不升 DB 版本、雲端同步自動涵蓋），活動類型是 `drill`。統計精熟題時一律用 `mastery.filter(...)` 篩，不要直接數 `db.mastery`。
+  - 題目情境自己寫，只在 `leetcodeRef` 標註題號，不照抄 LeetCode 原文。
 - **學習計畫**（新章節的進度，不含複習）：設定存在 `Settings.studyPlan`，排程是純函式 `src/lib/studyPlan.ts` 的 `buildPlan`，元件透過 `useStudyPlan()` 取用。
   - 時間模式：每日／週／月學 N 章。日模式把章節排進每天；週模式在月曆每週下方顯示帶狀提示；月模式只在月曆上方提醒「本月須完成 N 章」。
   - 目標模式：N 天內學完。每天用「剩餘章數 ÷ 剩餘天數」自動重排，截止日不變。今天已學完的章節算進今天的額度。

@@ -38,7 +38,8 @@ export function Dashboard() {
   const acc7 = accuracy(acts, addDay(day, -6), day);
   const accPrev = accuracy(acts, addDay(day, -13), addDay(day, -7));
   const learnedThisWeek = acts.filter((a) => a.type === 'learn' && a.day >= addDay(day, -6)).length;
-  const solved = [...states.values()].filter((s) => s.solved).length;
+  // mastery 表也存題型特訓（d-）的狀態，只算精熟題
+  const solved = mastery.filter((p) => states.get(p.id)?.solved).length;
   const overdue = due.filter((r) => r.due < day).length;
   const upcoming = reviews
     .filter((r) => !r.done && diffDays(r.due, day) > 0)

@@ -77,3 +77,26 @@ export interface MasteryProblem extends Exercise {
   /** 對應 LeetCode 的題型 / 相似題 */
   leetcodeRef: string;
 }
+
+/** 題型特訓的一題 */
+export interface DrillProblem extends Exercise {
+  difficulty: Difficulty;
+  /** 對應的 LeetCode 題號與題名 */
+  leetcodeRef: string;
+  patternId: string;
+}
+
+/** 題型特訓的一組題型 */
+export interface DrillPattern {
+  id: string;
+  title: string;
+  /** 一句話說明這類題目長什麼樣 */
+  summary: string;
+  /** 前置章節 id：全部學完才開放 */
+  requires: string[];
+  /** 解題模板說明（簡易 Markdown） */
+  template: string;
+  /** 模板範例 SQL（在 datasetId 上可直接執行） */
+  templateSql: string;
+  datasetId: string;
+}

@@ -94,11 +94,21 @@ SELECT ... FROM customers c LEFT JOIN orders o ON ... WHERE o.shipper_id = 1;
 -- ✅ 把右表條件放在 ON
 SELECT ... FROM customers c LEFT JOIN orders o ON o.customer_id = c.customer_id AND o.shipper_id = 1;
 ~~~
+
+### CROSS JOIN：所有組合
+\`CROSS JOIN\` 不需要 ON，會把左表每一列和右表每一列都配一次（例如 3 列 × 4 列 = 12 列），稱為**笛卡兒積**。
+~~~sql
+SELECT c.category_name, s.shipper_name
+FROM categories c
+CROSS JOIN shippers s;
+~~~
+LeetCode 常見用法：「每位學生 × 每個科目都要列出，沒有紀錄就顯示 0」→ 先 CROSS JOIN 做出所有組合，再 LEFT JOIN 實際資料。（「題型特訓」有專門練習。）
 `,
     examples: [
       { title: 'INNER JOIN', sql: 'SELECT o.order_id, o.order_date, c.customer_name\nFROM orders o\nJOIN customers c ON o.customer_id = c.customer_id;', explain: '每筆訂單配上顧客名稱。' },
       { title: '三張表', sql: 'SELECT o.order_id, p.product_name, d.quantity\nFROM order_details d\nJOIN orders o ON o.order_id = d.order_id\nJOIN products p ON p.product_id = d.product_id\nORDER BY o.order_id;', explain: 'JOIN 可以一直接下去。' },
       { title: 'LEFT JOIN', sql: 'SELECT c.customer_name, o.order_id\nFROM customers c\nLEFT JOIN orders o ON o.customer_id = c.customer_id\nORDER BY c.customer_id;', explain: '沒有訂單的顧客，order_id 是 NULL。' },
+      { title: 'CROSS JOIN', sql: 'SELECT c.category_name, s.shipper_name\nFROM categories c\nCROSS JOIN shippers s\nORDER BY c.category_id, s.shipper_id;', explain: '每個分類都和每家貨運商配對一次。' },
     ],
     practice: ex({
       id: 'c14-p',
@@ -121,6 +131,7 @@ SELECT ... FROM customers c LEFT JOIN orders o ON o.customer_id = c.customer_id 
 - \`A JOIN B ON A.key = B.key\`
 - INNER 只留配對成功；LEFT 保留左表全部
 - LEFT JOIN 的右表條件放在 ON，不要放 WHERE
+- CROSS JOIN 產生所有組合（不需要 ON）
 `,
   },
   {

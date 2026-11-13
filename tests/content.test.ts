@@ -3,7 +3,7 @@ import type { PGlite } from '@electric-sql/pglite';
 import { createPGlite } from '../src/db/pglite';
 import { runInSandbox } from '../src/db/sandbox';
 import { gradeExercise, buildSetup, type Runner } from '../src/grading/grade';
-import { chapters, mastery, datasets, getDataset } from '../src/content';
+import { chapters, mastery, drills, drillPatterns, datasets, getDataset } from '../src/content';
 import type { Exercise } from '../src/content/types';
 
 let db: PGlite;
@@ -20,6 +20,7 @@ const all: { where: string; ex: Exercise }[] = [
     { where: `${c.id} review`, ex: c.review },
   ]),
   ...mastery.map((p) => ({ where: p.id, ex: p as Exercise })),
+  ...drills.map((p) => ({ where: p.id, ex: p as Exercise })),
 ];
 
 describe('content', () => {
@@ -37,6 +38,25 @@ describe('content', () => {
         const intentional = /違反|外鍵|失敗|錯誤|拒絕/.test(e.explain);
         if (!out.ok && !intentional) throw new Error(`${c.id} example "${e.title}" failed: ${out.error}`);
       }
+    }
+  });
+
+  it('drill patterns: template SQL runs and every pattern has problems', async () => {
+    const ids = new Set(chapters.map((c) => c.id));
+    for (const pt of drillPatterns) {
+      expect(drills.some((d) => d.patternId === pt.id), `${pt.id} has no problems`).toBe(true);
+      for (const r of pt.requires) expect(ids.has(r), `${pt.id} requires unknown chapter ${r}`).toBe(true);
+      const out = await run({ setupSql: buildSetup(datasets[pt.datasetId], {}, false), sql: pt.templateSql });
+      if (!out.ok) throw new Error(`${pt.id} template failed: ${out.error}`);
+    }
+    expect(drills.every((d) => drillPatterns.some((pt) => pt.id === d.patternId))).toBe(true);
+  });
+
+  it('drill datasets: hidden data loads', async () => {
+    for (const ds of Object.values(datasets)) {
+      if (!ds.hiddenExtraSql) continue;
+      const out = await run({ setupSql: buildSetup(ds, {}, true), sql: 'SELECT 1' });
+      if (!out.ok) throw new Error(`${ds.id} hidden setup failed: ${out.error}`);
     }
   });
 
