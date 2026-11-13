@@ -15,7 +15,7 @@
 
 ```bash
 npm run dev        # vite (5173) + API server (8787)，用 concurrently 同時啟動
-npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 136 個測試
+npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 133 個測試
 npm run build      # tsc --noEmit && vite build
 ```
 
@@ -51,10 +51,11 @@ npm run build      # tsc --noEmit && vite build
 - **重點筆記**（`src/components/Highlighter.tsx`）：
   - 用 CSS Custom Highlight API 標記文字，不改動 React 管理的 DOM。
   - 位置記成「文字＋第幾次出現」，比對邏輯在 `src/lib/textMatch.ts`。
-- **練習頁左欄**：上方是題目、下方是資料表，中間可以拖曳調整，比例存在 localStorage 的 `sqlpg.splitRatio`；窄螢幕時改成上下依序排列。
-  - 入門題：`src/lib/schemaHints.ts` 的 `tablesUsed` 從標準解找出本題用到的表，排在最前面、預設展開，掛「本題用到」標籤。
-  - 精熟題：要用哪幾張表是練習的一部分，**不要透露**。
-  - 兩種題目都會用 `mentionedColumns` 把題目提到的欄位標上 ★。
+- **練習頁左欄**：
+  - 題目不加捲軸，一律完整顯示。
+  - 題目下方是資料表區：高度設為 `max(480px, 一個畫面高)`，在區塊內自己捲動，至少能完整看到一張表。左欄會跟著整頁一起捲動；右邊的編輯器維持 sticky。
+  - 所有表照原本順序全部展開。**不要標出「本題用到」哪張表**，使用者明確不要；精熟題也不該透露。
+  - 只用 `src/lib/schemaHints.ts` 的 `mentionedColumns`，把題目提到的欄位標上 ★。
 - **Monaco**：從本機打包載入，不走 CDN。主題 `sqlpg-dark` / `sqlpg-light` 定義在 `src/components/SqlEditor.tsx`。
   - **全域 CSS 不要用通用 class 名稱**，例如 `.main`、`.input`、`.center`、`.left`、`.icon`、`.contents`。Monaco 內部也用這些名字。
   - 之前全域的 `.main` 曾讓自動完成清單的文字消失，所以版面類 class 一律加前綴（`.app-main`、`.ui-input`、`.u-center`）。

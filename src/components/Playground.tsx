@@ -6,7 +6,7 @@ import type { RunOutput } from '../db/sandbox';
 import { buildSetup, gradeExercise, hasHiddenCase, type GradeResult } from '../grading/grade';
 import { aiAvailable, requestAiReview } from '../grading/aiReview';
 import { Markdown } from '../lib/markdown';
-import { mentionedColumns, tablesUsed } from '../lib/schemaHints';
+import { mentionedColumns } from '../lib/schemaHints';
 import { loadDraft, saveDraft, recordSubmission, attachAiFeedback } from '../store/progress';
 import { db, useLive } from '../store/db';
 import { ResultTable } from './ResultTable';
@@ -29,8 +29,6 @@ interface Props {
 
 type OutTab = 'run' | 'grade' | 'ai';
 type LeftTab = 'desc' | 'subs';
-const SPLIT_KEY = 'sqlpg.splitRatio';
-const clampSplit = (v: number) => Math.min(80, Math.max(20, Math.round(v)));
 
 const STARTER = '-- 在這裡輸入你的 SQL\n-- Ctrl+Enter 執行、Ctrl+Shift+Enter 提交\n\n';
 
@@ -49,52 +47,13 @@ export function Playground({ exercise, mode, header, extraInfo, onGraded }: Prop
   const [ai, setAi] = useState<{ status: 'idle' | 'loading' | 'done' | 'error' | 'off'; text?: string }>({ status: 'idle' });
   const [aiOn, setAiOn] = useState(false);
   const { tables } = useTables(ds, exercise);
-  // 資料表面板提示：入門題標出本題用到的表；所有題目都標出題目提到的欄位
-  const schemaHints = useMemo(() => {
-    if (!tables) return { focus: undefined, mark: undefined };
+  // 資料表面板：把題目提到的欄位標上 ★
+  const markCols = useMemo(() => {
+    if (!tables) return undefined;
     const allCols = [...new Set(tables.flatMap((t) => t.columns.map((c) => c.name)))];
-    const used = mode === 'mastery' ? [] : tablesUsed(`${exercise.solution}
-${exercise.checkQuery ?? ''}`, tables.map((t) => t.name));
-    return {
-      focus: used.length ? used : undefined,
-      mark: mentionedColumns(`${exercise.prompt}
-${exercise.expectedColumns ?? ''}`, allCols),
-    };
-  }, [tables, exercise, mode]);
-  // 題目 / 資料表上下分割的比例（%），記在 localStorage
-  const [split, setSplit] = useState(() => {
-    try {
-      const v = Number(localStorage.getItem(SPLIT_KEY));
-      return v >= 20 && v <= 80 ? v : 45;
-    } catch {
-      return 45;
-    }
-  });
-  const saveSplit = (v: number) => {
-    const c = clampSplit(v);
-    setSplit(c);
-    try {
-      localStorage.setItem(SPLIT_KEY, String(c));
-    } catch {
-      /* ignore */
-    }
-  };
-  const splitRef = useRef<HTMLDivElement>(null);
-  const onSplitDown = (e: React.PointerEvent) => {
-    e.preventDefault();
-    const el = splitRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const move = (ev: PointerEvent) => saveSplit(((ev.clientY - rect.top) / rect.height) * 100);
-    const up = () => {
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerup', up);
-      document.body.classList.remove('is-resizing');
-    };
-    document.body.classList.add('is-resizing');
-    window.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
-  };
+    return mentionedColumns(`${exercise.prompt}
+${exercise.expectedColumns ?? ''}`, allCols);
+  }, [tables, exercise]);
   const saveTimer = useRef<number>();
 
   const subs = useLive(() => db.submissions.where('exerciseId').equals(exercise.id).reverse().sortBy('ts'), [exercise.id], []);
@@ -186,7 +145,7 @@ ${exercise.expectedColumns ?? ''}`, allCols),
           </button>
         </div>
         {leftTab === 'desc' ? (
-          <div className="pg-split-wrap" ref={splitRef} style={{ ['--split' as string]: `${split}%` }}>
+          <div className="pg-desc">
             <div className="pg-q">
               <Markdown text={exercise.prompt} />
               {exercise.expectedColumns && (
@@ -215,33 +174,13 @@ ${exercise.expectedColumns ?? ''}`, allCols),
               )}
               <SolutionBox exercise={exercise} show={showSolution} canReveal={submitted} onReveal={() => setShowSolution(true)} mode={mode} />
             </div>
-            <div
-              className="pg-split"
-              role="separator"
-              aria-orientation="horizontal"
-              aria-label="調整題目與資料表的高度"
-              aria-valuemin={20}
-              aria-valuemax={80}
-              aria-valuenow={split}
-              tabIndex={0}
-              onPointerDown={onSplitDown}
-              onKeyDown={(e) => {
-                if (e.key === 'ArrowUp') {
-                  e.preventDefault();
-                  saveSplit(split - 5);
-                } else if (e.key === 'ArrowDown') {
-                  e.preventDefault();
-                  saveSplit(split + 5);
-                }
-              }}
-            />
             <div className="pg-schema">
               <div className="pg-schema-head">
                 <Database className="ic-sm" aria-hidden />
                 <strong>資料表</strong>
                 <span className="muted small" title={ds.description}>{ds.name}</span>
               </div>
-              <SchemaPanel ds={ds} ex={exercise} focus={schemaHints.focus} mark={schemaHints.mark} />
+              <SchemaPanel ds={ds} ex={exercise} mark={markCols} />
             </div>
           </div>
         ) : (

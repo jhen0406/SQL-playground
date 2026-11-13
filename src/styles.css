@@ -802,37 +802,20 @@ a.chapter:hover, .daily-item:hover, .cal-cell:hover { box-shadow: inset 0 0 0 1p
 .review-banner { border-bottom: 0; }
 .nav { border-radius: 5px; }
 
-/* ---------- 練習頁：題目 / 資料表上下分割 ---------- */
-.pg-left { height: calc(100vh - var(--topbar-h) - 32px); }
-.pg-split-wrap {
-  flex: 1 1 auto; min-height: 0; display: grid;
-  grid-template-rows: minmax(0, var(--split, 45%)) 14px minmax(0, 1fr);
+/* ---------- 練習頁左欄：題目完整顯示，下方資料表區自己捲動 ---------- */
+/* 左欄隨內容長高、跟整頁一起捲；右欄（編輯器）維持 sticky */
+.pg-left { position: static; max-height: none; height: auto; }
+.pg-q { padding-bottom: var(--sp-2); }
+.pg-schema {
+  margin-top: var(--sp-3); padding-top: var(--sp-2); box-shadow: inset 0 1px 0 var(--surface-3);
+  height: max(480px, calc(100vh - var(--topbar-h) - 64px)); overflow-y: auto; overscroll-behavior: contain; padding-right: 6px;
 }
-.pg-q, .pg-schema { overflow-y: auto; min-height: 0; padding-right: 6px; overscroll-behavior: contain; }
-.pg-split { position: relative; cursor: row-resize; touch-action: none; border-radius: 5px; }
-.pg-split::before {
-  content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 2px; transform: translateY(-50%);
-  background: var(--surface-3); border-radius: 2px; transition: background 0.15s var(--ease);
+.pg-schema-head {
+  position: sticky; top: 0; z-index: 2; background: var(--surface);
+  display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; padding: var(--sp-2) 0;
 }
-.pg-split::after {
-  content: ''; position: absolute; left: 50%; top: 50%; width: 36px; height: 6px; transform: translate(-50%, -50%);
-  background: var(--surface-3); border-radius: 99px; transition: background 0.15s var(--ease);
-}
-.pg-split:hover::before, .pg-split:hover::after, .pg-split:focus-visible::before, .pg-split:focus-visible::after { background: var(--primary); }
-.pg-split:focus-visible { outline: none; }
-body.is-resizing, body.is-resizing * { cursor: row-resize !important; user-select: none; }
-.pg-schema-head { display: flex; align-items: center; gap: var(--sp-2); flex-wrap: wrap; padding: var(--sp-1) 0 var(--sp-1); }
 .pg-schema-head .ic-sm { color: var(--primary); }
 .pg-schema .schema-table { margin: var(--sp-2) 0; }
-.schema-used { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 45%, transparent); }
 .col-mark td:first-child { color: var(--primary); font-weight: 700; }
 .col-star { color: var(--primary); font-size: 0.75em; margin-right: 4px; }
 .schema-toggle { margin: 4px var(--sp-2) var(--sp-2); }
-
-@media (max-width: 1100px) {
-  .pg-left { height: auto; }
-  .pg-split-wrap { display: block; max-height: min(70vh, 640px); overflow-y: auto; overscroll-behavior: contain; }
-  .pg-q, .pg-schema { overflow: visible; padding-right: 0; }
-  .pg-split { display: none; }
-  .pg-schema { margin-top: var(--sp-4); padding-top: var(--sp-3); box-shadow: inset 0 1px 0 var(--surface-3); }
-}
