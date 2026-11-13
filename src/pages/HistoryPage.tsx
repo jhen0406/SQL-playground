@@ -12,6 +12,9 @@ type View = 'list' | 'calendar';
 const TYPE_LABEL: Record<ActivityType, string> = { learn: '學完章節', practice: '章節練習', review: '複習', mastery: '精熟題' };
 const TYPE_CLASS: Record<ActivityType, string> = { learn: 'tag-ok', practice: '', review: 'tag-warn', mastery: 'tag-blue' };
 
+/** 標題前綴「學完：」等已由標籤表示，週曆裡省略 */
+const stripPrefix = (t: string) => t.replace(/^(學完|練習|複習)：/, '');
+
 function bounds(range: Range, anchor: DayStr): [DayStr, DayStr] {
   const d = fromDay(anchor);
   if (range === 'day') return [anchor, anchor];
@@ -169,9 +172,11 @@ function WeekBoard({ from, byDay, today }: { from: DayStr; byDay: Map<DayStr, Ac
           </div>
           {(byDay.get(d) ?? []).map((a) => (
             <div key={a.id} className={'week-item ' + a.type} title={a.title}>
-              <span className="muted small">{new Date(a.ts).toTimeString().slice(0, 5)}</span>
-              <span className="week-title">{a.title}</span>
-              {a.correct !== undefined && <span className={a.correct ? 'ok' : 'bad'} aria-label={a.correct ? '正確' : '錯誤'}>{a.correct ? <CheckCircle2 className="ic-sm" aria-hidden /> : <XCircle className="ic-sm" aria-hidden />}</span>}
+              <div className="week-item-h">
+                <span className={'tag ' + TYPE_CLASS[a.type]}>{TYPE_LABEL[a.type]}</span>
+                {a.correct !== undefined && <span className={a.correct ? 'ok' : 'bad'} aria-label={a.correct ? '正確' : '錯誤'}>{a.correct ? <CheckCircle2 className="ic-sm" aria-hidden /> : <XCircle className="ic-sm" aria-hidden />}</span>}
+              </div>
+              <span className="week-title">{stripPrefix(a.title)}</span>
             </div>
           ))}
           {!(byDay.get(d) ?? []).length && <div className="muted small">—</div>}

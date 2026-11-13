@@ -631,11 +631,13 @@ a.chapter:hover { border-color: var(--primary); text-decoration: none; box-shado
 .week-col { padding: var(--sp-3); min-height: 200px; }
 .week-col.today { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
 .week-h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--sp-2); }
-.week-item { font-size: 0.8rem; border-left: 3px solid var(--c-practice); padding: 4px 8px; margin: 6px 0; background: var(--surface-2); border-radius: 0 6px 6px 0; display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.week-item { font-size: 0.8rem; border-left: 3px solid var(--c-practice); padding: 6px 8px; margin: 6px 0; background: var(--surface-2); border-radius: 0 5px 5px 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .week-item.learn { border-color: var(--c-learn); }
 .week-item.review { border-color: var(--c-review); }
 .week-item.mastery { border-color: var(--c-mastery); }
 .week-title { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.week-item-h { display: flex; align-items: center; justify-content: space-between; gap: 4px; width: 100%; }
+.week-item .tag:not([class*='tag-']) { background: var(--surface-3); }
 
 /* ── Plan ── */
 .upcoming li { display: flex; gap: var(--sp-3); }
