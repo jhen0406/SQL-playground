@@ -816,6 +816,4 @@ a.chapter:hover, .daily-item:hover, .cal-cell:hover { box-shadow: inset 0 0 0 1p
 }
 .pg-schema-head .ic-sm { color: var(--primary); }
 .pg-schema .schema-table { margin: var(--sp-2) 0; }
-.col-mark td:first-child { color: var(--primary); font-weight: 700; }
-.col-star { color: var(--primary); font-size: 0.75em; margin-right: 4px; }
 .schema-toggle { margin: 4px var(--sp-2) var(--sp-2); }

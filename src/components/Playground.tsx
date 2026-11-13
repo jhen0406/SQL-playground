@@ -6,7 +6,6 @@ import type { RunOutput } from '../db/sandbox';
 import { buildSetup, gradeExercise, hasHiddenCase, type GradeResult } from '../grading/grade';
 import { aiAvailable, requestAiReview } from '../grading/aiReview';
 import { Markdown } from '../lib/markdown';
-import { mentionedColumns } from '../lib/schemaHints';
 import { loadDraft, saveDraft, recordSubmission, attachAiFeedback } from '../store/progress';
 import { db, useLive } from '../store/db';
 import { ResultTable } from './ResultTable';
@@ -47,13 +46,6 @@ export function Playground({ exercise, mode, header, extraInfo, onGraded }: Prop
   const [ai, setAi] = useState<{ status: 'idle' | 'loading' | 'done' | 'error' | 'off'; text?: string }>({ status: 'idle' });
   const [aiOn, setAiOn] = useState(false);
   const { tables } = useTables(ds, exercise);
-  // 資料表面板：把題目提到的欄位標上 ★
-  const markCols = useMemo(() => {
-    if (!tables) return undefined;
-    const allCols = [...new Set(tables.flatMap((t) => t.columns.map((c) => c.name)))];
-    return mentionedColumns(`${exercise.prompt}
-${exercise.expectedColumns ?? ''}`, allCols);
-  }, [tables, exercise]);
   const saveTimer = useRef<number>();
 
   const subs = useLive(() => db.submissions.where('exerciseId').equals(exercise.id).reverse().sortBy('ts'), [exercise.id], []);
@@ -180,7 +172,7 @@ ${exercise.expectedColumns ?? ''}`, allCols);
                 <strong>資料表</strong>
                 <span className="muted small" title={ds.description}>{ds.name}</span>
               </div>
-              <SchemaPanel ds={ds} ex={exercise} mark={markCols} />
+              <SchemaPanel ds={ds} ex={exercise} />
             </div>
           </div>
         ) : (

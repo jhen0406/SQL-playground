@@ -55,11 +55,9 @@ interface SchemaPanelProps {
   ex?: Pick<Exercise, 'extraSetupSql'>;
   /** 課程頁旁邊的精簡版：點表名展開範例資料（維持原本行為） */
   compact?: boolean;
-  /** 題目提到的欄位：以青綠粗體 + 星號標示 */
-  mark?: Set<string>;
 }
 
-export function SchemaPanel({ ds, ex, compact, mark }: SchemaPanelProps) {
+export function SchemaPanel({ ds, ex, compact }: SchemaPanelProps) {
   const { tables, error } = useTables(ds, ex);
   // compact：哪張表展開了範例資料；一般模式：哪些表收合、哪些表打開範例資料
   const [open, setOpen] = useState<string | null>(null);
@@ -85,11 +83,9 @@ export function SchemaPanel({ ds, ex, compact, mark }: SchemaPanelProps) {
     <table className="schema-cols">
       <tbody>
         {t.columns.map((c) => {
-          const marked = mark?.has(c.name);
           return (
-            <tr key={c.name} className={marked ? 'col-mark' : undefined}>
-              <td className="mono" title={marked ? '題目有提到' : undefined}>
-                {marked && <span className="col-star" aria-label="題目有提到">★</span>}
+            <tr key={c.name}>
+              <td className="mono">
                 {c.name}
                 {c.pk && <span className="badge badge-key inline-ic" title="Primary Key"><KeyRound size={11} aria-hidden />PK</span>}
               </td>
