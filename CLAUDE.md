@@ -15,7 +15,7 @@
 
 ```bash
 npm run dev        # vite (5173) + API server (8787)，用 concurrently 同時啟動
-npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 200 個測試
+npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 198 個測試
 npm run build      # tsc --noEmit && vite build
 ```
 
