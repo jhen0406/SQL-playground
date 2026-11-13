@@ -17,6 +17,7 @@ beforeAll(async () => {
 const all: { where: string; ex: Exercise }[] = [
   ...chapters.flatMap((c) => [
     { where: `${c.id} practice`, ex: c.practice },
+    ...(c.morePractice ?? []).map((p, i) => ({ where: `${c.id} practice ${i + 2}`, ex: p })),
     { where: `${c.id} review`, ex: c.review },
   ]),
   ...mastery.map((p) => ({ where: p.id, ex: p as Exercise })),
@@ -70,3 +71,17 @@ describe('content', () => {
     });
   }
 });
+
+describe('chapter helpers', () => {
+  it('review rotates through review + practices', async () => {
+    const { reviewExercise, reviewPool } = await import('../src/content');
+    for (const c of chapters) {
+      const pool = reviewPool(c);
+      expect(reviewExercise(c, 0).id).toBe(c.review.id);
+      const seen = new Set(pool.map((_, i) => reviewExercise(c, i).id));
+      expect(seen.size).toBe(pool.length);
+      expect(reviewExercise(c, pool.length).id).toBe(c.review.id);
+    }
+  });
+});
+

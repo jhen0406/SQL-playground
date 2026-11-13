@@ -3,7 +3,7 @@ import type { Exercise } from '../content/types';
 import { getDataset } from '../content';
 import { runSql } from '../db/engine';
 import type { RunOutput } from '../db/sandbox';
-import { buildSetup, gradeExercise, hasHiddenCase, type GradeResult } from '../grading/grade';
+import { buildSetup, effectiveSql, gradeExercise, hasHiddenCase, type GradeResult } from '../grading/grade';
 import { aiAvailable, requestAiReview } from '../grading/aiReview';
 import { Markdown } from '../lib/markdown';
 import { loadDraft, saveDraft, recordSubmission, attachAiFeedback } from '../store/progress';
@@ -33,6 +33,8 @@ type OutTab = 'run' | 'grade' | 'ai';
 type LeftTab = 'desc' | 'subs';
 
 const STARTER = '-- 在這裡輸入你的 SQL\n-- Ctrl+Enter 執行、Ctrl+Shift+Enter 提交\n\n';
+/** 表單輸入題的起始內容：一般使用者會輸入的值 */
+const INPUT_STARTER = 'Alice';
 
 export function Playground({ exercise, mode, header, extraInfo, onGraded }: Props) {
   const ds = getDataset(exercise);
@@ -66,7 +68,7 @@ export function Playground({ exercise, mode, header, extraInfo, onGraded }: Prop
     setLeftTab('desc');
     loadDraft(draftKey).then((d) => {
       if (!alive) return;
-      setSql(d ?? STARTER);
+      setSql(d ?? (exercise.inputTemplate ? INPUT_STARTER : STARTER));
       setLoaded(true);
     });
     aiAvailable().then((v) => alive && setAiOn(v));
@@ -90,7 +92,7 @@ export function Playground({ exercise, mode, header, extraInfo, onGraded }: Prop
     if (running) return;
     setRunning('run');
     setOutTab('run');
-    const out = await runSql({ setupSql: buildSetup(ds, exercise, false), sql, maxRows: 500 });
+    const out = await runSql({ setupSql: buildSetup(ds, exercise, false), sql: effectiveSql(exercise, sql), maxRows: 500 });
     setRunOut(out);
     setRunning(null);
   }, [running, ds, exercise, sql]);
@@ -215,7 +217,7 @@ export function Playground({ exercise, mode, header, extraInfo, onGraded }: Prop
           <div className="pg-toolbar">
             <span className="engine-chip"><span className="live" aria-hidden />PostgreSQL 16 · {ds.name}</span>
             <div className="spacer" />
-            <button className="btn btn-ghost btn-sm" onClick={() => onChange(STARTER)} title="清空編輯器">
+            <button className="btn btn-ghost btn-sm" onClick={() => onChange(exercise.inputTemplate ? INPUT_STARTER : STARTER)} title="清空編輯器">
               <RotateCcw className="ic-sm" aria-hidden />
               重置
             </button>
@@ -229,7 +231,19 @@ export function Playground({ exercise, mode, header, extraInfo, onGraded }: Prop
               {running === 'submit' ? '判題中' : '提交'}
             </button>
           </div>
-          {loaded ? <SqlEditor value={sql} onChange={onChange} onRun={doRun} onSubmit={doSubmit} height={280} /> : <div style={{ height: 280 }} className="muted u-center">載入中…</div>}
+          {exercise.inputTemplate && (
+            <div className="input-tpl">
+              <p className="small muted">這題模擬一個<strong>用字串拼接 SQL</strong> 的網站。你在下方輸入的是「輸入框的內容」，程式會把它原封不動放進 <code>{'{{input}}'}</code>：</p>
+              <pre className="md-code"><code>{exercise.inputTemplate}</code></pre>
+            </div>
+          )}
+          {loaded ? <SqlEditor value={sql} onChange={onChange} onRun={doRun} onSubmit={doSubmit} height={exercise.inputTemplate ? 120 : 280} /> : <div style={{ height: 280 }} className="muted u-center">載入中…</div>}
+          {exercise.inputTemplate && loaded && (
+            <div className="input-tpl">
+              <p className="small muted">實際送進資料庫的 SQL：</p>
+              <pre className="md-code"><code>{effectiveSql(exercise, sql)}</code></pre>
+            </div>
+          )}
         </div>
 
         <div className="card pg-output">
@@ -350,7 +364,7 @@ function SolutionBox({ exercise, show, canReveal, onReveal, mode }: { exercise: 
   }
   return (
     <div className="solution">
-      <h4>參考解答</h4>
+      <h4>{exercise.inputTemplate ? '參考輸入' : '參考解答'}</h4>
       <pre className="md-code">
         <code>{exercise.solution}</code>
       </pre>

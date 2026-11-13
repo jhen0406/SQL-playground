@@ -40,6 +40,22 @@ export function getPattern(id: string): DrillPattern | undefined {
   return drillPatterns.find((p) => p.id === id);
 }
 
+/** 本章全部練習題（第 1 題 + morePractice） */
+export function chapterPractices(ch: Chapter): Exercise[] {
+  return [ch.practice, ...(ch.morePractice ?? [])];
+}
+
+/** 複習輪流出題的題庫：複習題 + 各練習題 */
+export function reviewPool(ch: Chapter): Exercise[] {
+  return [ch.review, ...chapterPractices(ch)];
+}
+
+/** 第 n 次複習（從 0 起算）要出的題目 */
+export function reviewExercise(ch: Chapter, n: number): Exercise {
+  const pool = reviewPool(ch);
+  return pool[((n % pool.length) + pool.length) % pool.length];
+}
+
 export function getChapter(id: string): Chapter | undefined {
   return chapters.find((c) => c.id === id);
 }

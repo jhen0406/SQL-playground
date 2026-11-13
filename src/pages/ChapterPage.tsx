@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { chapters, datasets, getChapter } from '../content';
+import { chapterPractices, chapters, datasets, getChapter } from '../content';
 import { MiniRunner } from '../components/MiniRunner';
 import { Playground } from '../components/Playground';
 import { SchemaPanel } from '../components/SchemaPanel';
@@ -10,8 +10,8 @@ import { Markdown } from '../lib/markdown';
 import { prettyDay } from '../lib/date';
 import { completeChapter, logActivity, useNotes } from '../store/progress';
 import { db } from '../store/db';
-import { useChapterProgress } from '../store/hooks';
-import { ArrowLeft, ArrowRight, CheckCircle2, Database, Highlighter as HighlighterIcon, PartyPopper } from 'lucide-react';
+import { allPassed, useChapterProgress, usePassedExercises } from '../store/hooks';
+import { ArrowLeft, ArrowRight, CheckCircle2, Circle, Database, Highlighter as HighlighterIcon, PartyPopper } from 'lucide-react';
 
 type Step = 0 | 1 | 2;
 const STEPS = ['概念說明', '範例實作', '練習題'];
@@ -26,10 +26,15 @@ export function ChapterPage() {
   const [step, setStep] = useState<Step>(initialStep === 1 || initialStep === 2 ? initialStep : 0);
   const notes = useNotes(id);
   const [justDone, setJustDone] = useState<string | null>(null);
+  const [pIdx, setPIdx] = useState(0);
+  const [justPassed, setJustPassed] = useState(false);
+  const passed = usePassedExercises();
 
   useEffect(() => {
     setStep(0);
     setJustDone(null);
+    setPIdx(0);
+    setJustPassed(false);
     window.scrollTo(0, 0);
   }, [id]);
   // 從筆記「回到章節」帶 ?step=N 進來時切到該步驟，然後把參數清掉
@@ -47,16 +52,28 @@ export function ChapterPage() {
   const next = chapters[idx + 1];
   const prev = chapters[idx - 1];
   const isDone = done.has(ch.id);
+  const practices = chapterPractices(ch);
+  const cur = practices[Math.min(pIdx, practices.length - 1)];
+  const passedCount = practices.filter((p) => passed.has(p.id)).length;
+  const nextUnsolved = practices.findIndex((p, i) => i !== pIdx && !passed.has(p.id));
 
   const onGraded = async (g: { pass: boolean; summary: string }, sql: string) => {
-    await logActivity({ type: 'practice', refId: ch.practice.id, title: `練習：${ch.title}`, correct: g.pass, sql, detail: g.summary });
-    if (g.pass) {
+    const label = practices.length > 1 ? `練習：${ch.title}（${pIdx + 1}/${practices.length}）` : `練習：${ch.title}`;
+    await logActivity({ type: 'practice', refId: cur.id, title: label, correct: g.pass, sql, detail: g.summary });
+    if (!g.pass) return;
+    setJustPassed(true);
+    // 本章全部練習題都答對過才算完成
+    if (await allPassed(practices.map((p) => p.id))) {
       const created = await completeChapter(ch.id, ch.title);
       if (created) {
         const r = await db.reviews.get(ch.id);
         if (r) setJustDone(prettyDay(r.due));
       }
     }
+  };
+  const goPractice = (i: number) => {
+    setPIdx(i);
+    setJustPassed(false);
   };
 
   return (
@@ -133,13 +150,36 @@ export function ChapterPage() {
               )}
             </div>
           )}
+          {practices.length > 1 && (
+            <div className="practice-bar">
+              <div className="seg" role="tablist" aria-label="練習題">
+                {practices.map((p, i) => (
+                  <button key={p.id} role="tab" aria-selected={i === pIdx} className={i === pIdx ? 'on' : ''} onClick={() => goPractice(i)} title={p.title}>
+                    {passed.has(p.id) ? <CheckCircle2 className="ic-sm ok" aria-label="已答對" /> : <Circle className="ic-sm" aria-label="未答對" />}
+                    練習 {i + 1}
+                  </button>
+                ))}
+              </div>
+              <span className="muted small">已答對 {passedCount} / {practices.length}{!isDone && '，全部答對即完成本章'}</span>
+            </div>
+          )}
+          {justPassed && !justDone && nextUnsolved >= 0 && (
+            <div className="alert alert-ok">
+              <span className="inline-ic"><CheckCircle2 className="ic-sm" aria-hidden /><span>答對了！本章還有 {practices.length - passedCount} 題練習。</span></span>
+              <button className="btn btn-primary btn-sm" onClick={() => goPractice(nextUnsolved)}>
+                下一題：練習 {nextUnsolved + 1} <ArrowRight className="ic-sm" aria-hidden />
+              </button>
+            </div>
+          )}
           <Playground
-            exercise={ch.practice}
+            key={cur.id}
+            exercise={cur}
             mode="practice"
             header={
               <div className="pg-head">
-                <span className="tag">練習題</span>
-                <h3>{ch.practice.title}</h3>
+                <span className="tag">{practices.length > 1 ? `練習 ${pIdx + 1} / ${practices.length}` : '練習題'}</span>
+                {passed.has(cur.id) && <span className="tag tag-ok"><CheckCircle2 className="ic-sm" aria-hidden />已答對</span>}
+                <h3>{cur.title}</h3>
               </div>
             }
             onGraded={onGraded}

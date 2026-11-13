@@ -3,7 +3,7 @@ import { chapters, mastery } from '../content';
 import { today, type DayStr } from '../lib/date';
 import { reviewStatus, type ReviewItem } from '../srs/schedule';
 import { buildPlan, type PlanView } from '../lib/studyPlan';
-import { db, getSettings, useLive, useSettings, type ChapterProgress, type MasteryState } from './db';
+import { db, getSettings, saveSettings, useLive, useSettings, type ChapterProgress, type MasteryState } from './db';
 
 /** 讓「今天」在跨日或模擬日期改變時重新計算 */
 export function useToday(): DayStr {
@@ -51,6 +51,31 @@ export function isChapterUnlocked(index: number, done: Map<string, ChapterProgre
 /** 題型組是否開放：前置章節全部學完，或在設定中手動解鎖 */
 export function isPatternOpen(requires: string[], done: Map<string, ChapterProgress>, unlocked: boolean): boolean {
   return unlocked || requires.every((id) => done.has(id));
+}
+
+/** 答對過的題目 id（任何一次提交通過即算） */
+export function usePassedExercises(): Set<string> {
+  const rows = useLive(() => db.submissions.filter((s) => s.pass).toArray(), [], []);
+  return useMemo(() => new Set((rows ?? []).map((s) => s.exerciseId)), [rows]);
+}
+
+/** 這些題目是否都答對過 */
+export async function allPassed(exerciseIds: string[]): Promise<boolean> {
+  const passed = await db.submissions.where('exerciseId').anyOf(exerciseIds).filter((s) => s.pass).toArray();
+  const set = new Set(passed.map((s) => s.exerciseId));
+  return exerciseIds.every((id) => set.has(id));
+}
+
+/**
+ * 原本的 34 章（c01–c34）。之後插入的新章節不應讓「已學完全部章節」的使用者
+ * 被重新鎖住精熟挑戰：這些使用者自動打開 masteryUnlocked。
+ */
+const LEGACY_CHAPTER_IDS = Array.from({ length: 34 }, (_, i) => `c${String(i + 1).padStart(2, '0')}`);
+
+export async function keepLegacyMasteryUnlocked(done: Map<string, ChapterProgress>) {
+  if (!LEGACY_CHAPTER_IDS.every((id) => done.has(id))) return;
+  const s = await getSettings();
+  if (!s.masteryUnlocked) await saveSettings({ masteryUnlocked: true });
 }
 
 export function allChaptersDone(done: Map<string, ChapterProgress>): boolean {

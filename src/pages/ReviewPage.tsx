@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { getChapter } from '../content';
+import { getChapter, reviewExercise, reviewPool } from '../content';
 import { Playground } from '../components/Playground';
 import { Markdown } from '../lib/markdown';
 import { prettyDay } from '../lib/date';
@@ -21,16 +21,24 @@ export function ReviewPage() {
   const notes = useNotes(id);
   const [result, setResult] = useState<ReviewItem | null>(null);
   const [firstCorrect, setFirstCorrect] = useState<boolean | null>(null);
+  // 輪流出題：依「已複習次數」決定題目，進入頁面時就固定，避免提交後中途換題
+  const [pick, setPick] = useState<number | null>(null);
 
   useEffect(() => {
     counted.current = false;
     setResult(null);
     setFirstCorrect(null);
+    setPick(null);
   }, [id]);
+  useEffect(() => {
+    if (item && pick === null) setPick(item.history.length);
+  }, [item, pick]);
 
   if (!ch) return <div className="page">找不到章節。</div>;
   if (!item) return <div className="page">這一章還沒有學完，還沒有複習排程。<Link to={`/learn/${id}`}>前往學習</Link></div>;
 
+  const exercise = reviewExercise(ch, pick ?? item.history.length);
+  const poolSize = reviewPool(ch).length;
   const status = reviewStatus(item, day);
   const isDue = status === 'today' || status === 'overdue';
   const otherDue = dueReviews(reviews, day).filter((r) => r.chapterId !== id);
@@ -97,12 +105,14 @@ export function ReviewPage() {
       )}
 
       <Playground
-        exercise={ch.review}
+        key={exercise.id}
+        exercise={exercise}
         mode="review"
         header={
           <div className="pg-head">
             <span className="tag tag-warn">複習題</span>
-            <h3>{ch.review.title}</h3>
+            {poolSize > 1 && <span className="muted small">本章 {poolSize} 題輪流出</span>}
+            <h3>{exercise.title}</h3>
           </div>
         }
         onGraded={onGraded}

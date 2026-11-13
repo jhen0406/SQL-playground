@@ -5,7 +5,7 @@ import { getDayOffset, prettyDay } from '../lib/date';
 import { applyTheme, useTheme } from '../lib/theme';
 import { useSettings } from '../store/db';
 import { AvatarSvg } from './Avatars';
-import { dueReviews, useReviews, useToday } from '../store/hooks';
+import { dueReviews, keepLegacyMasteryUnlocked, useChapterProgress, useReviews, useToday } from '../store/hooks';
 import { warmUp } from '../db/engine';
 import { cloudEnabled, initCloud, useCloud } from '../store/cloud';
 import {
@@ -54,6 +54,10 @@ export function Layout() {
     warmUp();
     initCloud();
   }, []);
+  const done = useChapterProgress();
+  useEffect(() => {
+    if (done.size >= 34) void keepLegacyMasteryUnlocked(done);
+  }, [done]);
   useEffect(() => setMenuOpen(false), [loc.pathname]);
 
   const offset = getDayOffset();

@@ -21,6 +21,7 @@ export interface RunRequest {
 }
 
 const RESET_SQL = `
+DEALLOCATE ALL;
 DROP SCHEMA IF EXISTS sandbox CASCADE;
 CREATE SCHEMA sandbox;
 SET search_path TO sandbox;

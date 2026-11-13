@@ -44,6 +44,11 @@ export interface Exercise {
   explanation?: string;
   /** 預期輸出欄位說明，例如「month | revenue」 */
   expectedColumns?: string;
+  /**
+   * 「表單輸入」題（SQL Injection）：使用者寫的不是 SQL，而是輸入框的內容，
+   * 平台把它原封不動放進模板的 {{input}} 再執行。solution 存的是標準輸入值。
+   */
+  inputTemplate?: string;
 }
 
 export interface LessonExample {
@@ -64,7 +69,10 @@ export interface Chapter {
   /** 概念說明（簡易 Markdown） */
   concept: string;
   examples: LessonExample[];
+  /** 第 1 題練習 */
   practice: Exercise;
+  /** 其餘練習（每個子主題一題）；全部答對才算完成本章 */
+  morePractice?: Exercise[];
   review: Exercise;
   /** 重點摘要：複習時顯示 */
   summary: string;

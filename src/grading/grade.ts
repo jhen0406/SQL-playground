@@ -22,6 +22,16 @@ export interface GradeResult {
   summary: string;
 }
 
+/** 「表單輸入」題：把輸入原封不動放進模板（模擬程式用字串拼接 SQL） */
+export function fillTemplate(template: string, input: string): string {
+  return template.split('{{input}}').join(input);
+}
+
+/** 題目實際要執行的 SQL（一般題就是使用者寫的 SQL） */
+export function effectiveSql(ex: Pick<Exercise, 'inputTemplate'>, text: string): string {
+  return ex.inputTemplate ? fillTemplate(ex.inputTemplate, text) : text;
+}
+
 export function buildSetup(ds: Dataset, ex: Pick<Exercise, 'extraSetupSql'>, hidden: boolean): string {
   return [ds.schemaSql, ds.seedSql, hidden ? ds.hiddenExtraSql ?? '' : '', ex.extraSetupSql ?? ''].join('\n');
 }
@@ -37,12 +47,12 @@ export async function gradeExercise(run: Runner, ds: Dataset, ex: Exercise, user
   const cases: CaseResult[] = [];
   for (const v of variants) {
     const setupSql = buildSetup(ds, ex, v.hidden);
-    const exp = await run({ setupSql, sql: ex.solution, checkQuery: ex.checkQuery, maxRows: 5000 });
+    const exp = await run({ setupSql, sql: effectiveSql(ex, ex.solution), checkQuery: ex.checkQuery, maxRows: 5000 });
     if (!exp.ok) {
       cases.push({ name: v.name, hidden: v.hidden, pass: false, error: '（平台錯誤）標準解執行失敗：' + exp.error });
       continue;
     }
-    const usr = await run({ setupSql, sql: userSql, checkQuery: ex.checkQuery, maxRows: 5000 });
+    const usr = await run({ setupSql, sql: effectiveSql(ex, userSql), checkQuery: ex.checkQuery, maxRows: 5000 });
     if (!usr.ok) {
       cases.push({ name: v.name, hidden: v.hidden, pass: false, error: usr.error, expected: pick(exp, ex) ?? undefined });
       break; // 語法錯誤時不用再跑其他測資
