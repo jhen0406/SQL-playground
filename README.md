@@ -50,6 +50,18 @@ npm run dev
 
 同步規則：本機變動約 3 秒後上傳；登入或切回分頁時，如果雲端比較新就下載。如果登入時這個瀏覽器裡已經有別人（或訪客時期）的紀錄，會請你選擇要保留哪一份。登出時會清空這個瀏覽器裡的紀錄。
 
+## 部署到 Netlify
+
+建置指令、輸出資料夾、Node 版本，以及前端路由的重新導向，都已經寫在 `netlify.toml`，不用在後台另外填。
+
+1. Netlify 後台選 **Add new site → Import an existing project → GitHub**，選擇這個 repo。
+   - 私人 repo 沒出現在清單裡時，點 **Configure the Netlify app on GitHub**，把這個 repo 的存取權限開給 Netlify。
+2. 到 **Site configuration → Environment variables**，加入 `VITE_SUPABASE_URL` 和 `VITE_SUPABASE_ANON_KEY`，值和 `.env` 相同。設定好後到 **Deploys** 按 **Trigger deploy** 重新建置一次。
+3. 到 Supabase 的 **Authentication → URL Configuration**：Site URL 填 Netlify 網址，Redirect URLs 也加上 `https://你的網址/**`。這樣登入和驗證信才會導回正式網站。
+4. 之後每次 `git push` 到 `main`，Netlify 都會自動重新部署。
+
+只有前端會上線；AI 批改的後端（`server/`）不會部署，網站會自動改成顯示內建的參考解答。
+
 ## 測試
 
 ```bash

@@ -1,0 +1,15 @@
+# Netlify 部署設定（只部署前端；AI 批改後端 server/ 不會上線，前端會自動改顯示內建參考解答）
+# 環境變數 VITE_SUPABASE_URL、VITE_SUPABASE_ANON_KEY 請在 Netlify 後台 Site configuration → Environment variables 設定。
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# 前端路由（/learn/c03 這類網址）重新整理時回到 index.html，避免 404
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
