@@ -16,22 +16,40 @@ export interface ReviewItem {
   due: DayStr;
   /** 全部階段完成 */
   done: boolean;
-  history: { day: DayStr; correct: boolean }[];
+  history: { day: DayStr; correct: boolean; rating?: ReviewRating }[];
 }
+
+/**
+ * 複習後的熟悉度（答錯一律是 again）。
+ * - good 熟悉：升到下一級
+ * - ok 尚可：不升級，從今天起用這一級的間隔再複習一次
+ * - again 不熟悉／答錯：以今天為起點從第 3 天重新開始
+ */
+export type ReviewRating = 'good' | 'ok' | 'again';
+
+export const RATING_LABEL: Record<ReviewRating, string> = { good: '熟悉', ok: '尚可', again: '不熟悉' };
 
 export function createReviewItem(chapterId: string, learnedDay: DayStr, offsets = DEFAULT_OFFSETS): ReviewItem {
   return { chapterId, anchor: learnedDay, stage: 0, due: addDay(learnedDay, offsets[0]), done: false, history: [] };
 }
 
 /**
- * 完成一次複習。
- * - 答對：進入下一階段；下次日期 = 起算日 + 下一個間隔（若已過期，至少排到明天）。
- * - 答錯：以今天為新的起算日重新開始（回到第 3 天那一級）。
+ * 完成一次複習。rating 也可以傳 boolean（true = 熟悉、false = 答錯）。
+ * - good：進入下一階段；下次日期 = 起算日 + 下一個間隔（若已過期，至少排到明天）。
+ * - ok：停在本階段，起算日移到「今天 − 上一個間隔」，所以下次日期 = 今天 + 本階段的間隔差。
+ * - again：以今天為新的起算日重新開始（回到第 3 天那一級）。
  */
-export function completeReview(item: ReviewItem, day: DayStr, correct: boolean, offsets = DEFAULT_OFFSETS): ReviewItem {
-  const history = [...item.history, { day, correct }];
-  if (!correct) {
+export function completeReview(item: ReviewItem, day: DayStr, rating: ReviewRating | boolean, offsets = DEFAULT_OFFSETS): ReviewItem {
+  const r: ReviewRating = rating === true ? 'good' : rating === false ? 'again' : rating;
+  // correct 記的是「答案對不對」：只有傳 false（答錯）才是 false；答對但選不熟悉仍是 true
+  const history = [...item.history, { day, correct: rating !== false, rating: r }];
+  if (r === 'again') {
     return { ...item, anchor: day, stage: 0, due: addDay(day, offsets[0]), done: false, history };
+  }
+  if (r === 'ok') {
+    const s = Math.min(item.stage, offsets.length - 1);
+    const anchor = s === 0 ? day : addDay(day, -offsets[s - 1]);
+    return { ...item, anchor, stage: s, due: addDay(anchor, offsets[s]), done: false, history };
   }
   const stage = item.stage + 1;
   if (stage >= offsets.length) {

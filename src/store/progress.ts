@@ -1,6 +1,6 @@
 import { db, getSettings, useLive, type Activity, type Note } from './db';
 import { today } from '../lib/date';
-import { createReviewItem, completeReview } from '../srs/schedule';
+import { createReviewItem, completeReview, RATING_LABEL, type ReviewItem, type ReviewRating } from '../srs/schedule';
 
 export async function logActivity(a: Omit<Activity, 'id' | 'day' | 'ts'>) {
   await db.activities.add({ ...a, day: today(), ts: Date.now() });
@@ -28,13 +28,37 @@ export async function completeChapter(chapterId: string, title: string) {
   return true;
 }
 
-export async function finishReview(chapterId: string, title: string, correct: boolean, sql: string) {
-  const item = await db.reviews.get(chapterId);
-  if (!item) return;
+/**
+ * 記錄一次到期複習的結果。
+ * - 答錯：rating 傳 false
+ * - 答對：rating 傳使用者選的熟悉度（不熟悉仍算答對，只是排程照答錯處理）
+ * 回傳更新後的排程、這次複習前的快照（改選熟悉度時用），以及活動紀錄 id。
+ */
+export async function finishReview(chapterId: string, title: string, rating: ReviewRating | false, sql: string) {
+  const prev = await db.reviews.get(chapterId);
+  if (!prev) return;
   const { offsets } = await getSettings();
-  const next = completeReview(item, today(), correct, offsets);
+  const next = completeReview(prev, today(), rating, offsets);
   await db.reviews.put(next);
-  await logActivity({ type: 'review', refId: chapterId, title: `複習：${title}`, correct, sql });
+  const activityId = await db.activities.add({
+    day: today(),
+    ts: Date.now(),
+    type: 'review',
+    refId: chapterId,
+    title: `複習：${title}`,
+    correct: rating !== false,
+    sql,
+    detail: rating === false ? undefined : `熟悉度：${RATING_LABEL[rating]}`,
+  });
+  return { next, prev, activityId };
+}
+
+/** 同一次複習改選熟悉度：從複習前的快照重新計算，並更新那筆活動紀錄 */
+export async function rerateReview(prev: ReviewItem, rating: ReviewRating, activityId: number, day: string) {
+  const { offsets } = await getSettings();
+  const next = completeReview(prev, day, rating, offsets);
+  await db.reviews.put(next);
+  await db.activities.update(activityId, { detail: `熟悉度：${RATING_LABEL[rating]}` });
   return next;
 }
 

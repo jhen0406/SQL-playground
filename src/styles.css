@@ -906,3 +906,24 @@ a.chapter:hover, .daily-item:hover, .cal-cell:hover { box-shadow: inset 0 0 0 1p
 .seg.seg-sm button { min-height: 26px; font-size: 0.8rem; padding: 0 var(--sp-2); }
 .mysql-note { background: var(--info-soft); border-radius: 5px; padding: var(--sp-2) var(--sp-3); }
 
+
+/* 複習：熟悉度回饋 */
+.rating-card { margin-bottom: var(--sp-4); box-shadow: inset 0 0 0 1px var(--primary); }
+.rating-head { display: flex; align-items: baseline; gap: var(--sp-3); flex-wrap: wrap; margin-bottom: var(--sp-3); }
+.rating-opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-3); }
+.rating-opt {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left;
+  font: inherit; color: var(--text); background: var(--surface-2); border: 0; border-radius: 5px;
+  padding: var(--sp-3); cursor: pointer;
+}
+.rating-opt:hover { box-shadow: inset 0 0 0 1px var(--border-strong); }
+.rating-opt:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.rating-name { font-weight: 700; font-size: 1rem; }
+.rating-opt.good .rating-name { color: var(--ok); }
+.rating-opt.ok .rating-name { color: var(--warn); }
+.rating-opt.again .rating-name { color: var(--bad); }
+.rating-opt.good.on { box-shadow: inset 0 0 0 2px var(--ok); background: var(--ok-soft); }
+.rating-opt.ok.on { box-shadow: inset 0 0 0 2px var(--warn); background: var(--warn-soft); }
+.rating-opt.again.on { box-shadow: inset 0 0 0 2px var(--bad); background: var(--bad-soft); }
+.rating-next { color: var(--text-2); font-weight: 600; }
+@media (max-width: 640px) { .rating-opts { grid-template-columns: 1fr; } }
