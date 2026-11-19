@@ -10,7 +10,7 @@ import { warmUp } from '../db/engine';
 import { cloudEnabled, initCloud, useCloud } from '../store/cloud';
 import {
   ArrowRight, BellRing, BookOpen, CalendarCheck, CalendarDays, Database, Dumbbell, LayoutDashboard, Menu, Moon, NotebookPen,
-  Settings, Sun, Trophy, UserRound, X, type LucideIcon,
+  Settings, Star, Sun, Trophy, UserRound, X, type LucideIcon,
 } from 'lucide-react';
 
 interface NavItem {
@@ -30,6 +30,7 @@ const NAV: NavItem[] = [
   { to: '/plan', label: '學習計畫', short: '計畫', icon: CalendarCheck },
   { to: '/history', label: '學習紀錄', short: '紀錄', icon: CalendarDays },
   { to: '/notes', label: '重點筆記', short: '筆記', icon: NotebookPen },
+  { to: '/favorites', label: '收藏', short: '收藏', icon: Star },
 ];
 const SETTINGS: NavItem = { to: '/settings', label: '設定', short: '設定', icon: Settings };
 const ACCOUNT: NavItem = { to: '/account', label: '帳號', short: '帳號', icon: UserRound };

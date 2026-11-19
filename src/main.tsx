@@ -11,6 +11,7 @@ import { ReviewPage } from './pages/ReviewPage';
 import { MasteryIndex, MasteryProblemPage } from './pages/MasteryPages';
 import { HistoryPage } from './pages/HistoryPage';
 import { DrillIndex, DrillProblemPage } from './pages/DrillPages';
+import { FavoritePracticePage, FavoritesPage } from './pages/FavoritesPage';
 import { PlanPage } from './pages/PlanPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { NotesPage } from './pages/NotesPage';
@@ -34,6 +35,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="history" element={<HistoryPage />} />
           <Route path="plan" element={<PlanPage />} />
           <Route path="notes" element={<NotesPage />} />
+          <Route path="favorites" element={<FavoritesPage />} />
+          <Route path="favorites/:id" element={<FavoritePracticePage />} />
           <Route path="account" element={<AccountPage />} />
           <Route path="settings" element={<SettingsPage />} />
           <Route path="*" element={<div className="page">找不到頁面。</div>} />

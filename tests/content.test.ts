@@ -105,3 +105,13 @@ describe('MySQL 寫法', () => {
   });
 });
 
+
+describe('題目索引（收藏用）', () => {
+  it('每一題都找得到來源，且 id 不重複', async () => {
+    const { allExerciseEntries, findExercise } = await import('../src/content');
+    const entries = allExerciseEntries();
+    expect(new Set(entries.map((e) => e.exercise.id)).size).toBe(entries.length);
+    expect(entries.length).toBe(all.length);
+    for (const { ex } of all) expect(findExercise(ex.id)?.exercise.id).toBe(ex.id);
+  });
+});

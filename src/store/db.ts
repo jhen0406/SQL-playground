@@ -4,7 +4,7 @@ import type { ReviewItem } from '../srs/schedule';
 import { DEFAULT_OFFSETS } from '../srs/schedule';
 import { DEFAULT_STUDY_PLAN, type StudyPlan } from '../lib/studyPlan';
 
-export type ActivityType = 'learn' | 'practice' | 'review' | 'mastery' | 'drill';
+export type ActivityType = 'learn' | 'practice' | 'review' | 'mastery' | 'drill' | 'favorite';
 
 export interface Activity {
   id?: number;
@@ -16,6 +16,12 @@ export interface Activity {
   correct?: boolean;
   sql?: string;
   detail?: string;
+}
+
+/** 收藏的題目（任何題目 id：章節練習、複習題、精熟題、題型特訓） */
+export interface Favorite {
+  exerciseId: string;
+  ts: number;
 }
 
 export interface ChapterProgress {
@@ -96,6 +102,7 @@ class AppDB extends Dexie {
   drafts!: Table<Draft, string>;
   kv!: Table<{ key: string; value: unknown }, string>;
   notes!: Table<Note, number>;
+  favorites!: Table<Favorite, string>;
 
   constructor() {
     super('sql-playground');
@@ -110,6 +117,7 @@ class AppDB extends Dexie {
       kv: 'key',
     });
     this.version(2).stores({ notes: '++id, chapterId, ts' });
+    this.version(3).stores({ favorites: 'exerciseId, ts' });
   }
 }
 

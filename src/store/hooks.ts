@@ -53,6 +53,12 @@ export function isPatternOpen(requires: string[], done: Map<string, ChapterProgr
   return unlocked || requires.every((id) => done.has(id));
 }
 
+/** 收藏的題目 id */
+export function useFavorites(): Set<string> {
+  const rows = useLive(() => db.favorites.toArray(), [], []);
+  return useMemo(() => new Set((rows ?? []).map((f) => f.exerciseId)), [rows]);
+}
+
 /** 答對過的題目 id（任何一次提交通過即算） */
 export function usePassedExercises(): Set<string> {
   const rows = useLive(() => db.submissions.filter((s) => s.pass).toArray(), [], []);

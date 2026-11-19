@@ -6,12 +6,13 @@ import type { RunOutput } from '../db/sandbox';
 import { buildSetup, effectiveSql, gradeExercise, hasHiddenCase, type GradeResult } from '../grading/grade';
 import { aiAvailable, requestAiReview } from '../grading/aiReview';
 import { Markdown } from '../lib/markdown';
-import { loadDraft, saveDraft, recordSubmission, attachAiFeedback } from '../store/progress';
+import { loadDraft, saveDraft, recordSubmission, attachAiFeedback, toggleFavorite } from '../store/progress';
+import { useFavorites } from '../store/hooks';
 import { db, useLive } from '../store/db';
 import { ResultTable } from './ResultTable';
 import { SchemaPanel, useTables } from './SchemaPanel';
 import { SqlEditor } from './SqlEditor';
-import { BookOpenCheck, Bot, CheckCircle2, Database, Eye, Lightbulb, Loader2, Lock, Play, RotateCcw, Send, Terminal, XCircle } from 'lucide-react';
+import { BookOpenCheck, Bot, CheckCircle2, Database, Eye, Lightbulb, Loader2, Lock, Play, RotateCcw, Send, Star, Terminal, XCircle } from 'lucide-react';
 
 export type PlaygroundMode = 'practice' | 'review' | 'mastery' | 'drill';
 
@@ -132,7 +133,10 @@ export function Playground({ exercise, mode, header, extraInfo, onGraded }: Prop
   return (
     <div className="pg">
       <section className="pg-left card">
-        {header}
+        <div className="pg-left-head">
+          <div className="grow">{header}</div>
+          <FavoriteButton exerciseId={exercise.id} />
+        </div>
         <div className="tabs" role="tablist">
           <button role="tab" aria-selected={leftTab === 'desc'} className={leftTab === 'desc' ? 'on' : ''} onClick={() => setLeftTab('desc')}>
             題目
@@ -357,6 +361,24 @@ function readDialect(): Dialect {
   } catch {
     return 'pg';
   }
+}
+
+/** 收藏題目的星號按鈕 */
+export function FavoriteButton({ exerciseId }: { exerciseId: string }) {
+  const favs = useFavorites();
+  const on = favs.has(exerciseId);
+  return (
+    <button
+      type="button"
+      className={'fav-btn' + (on ? ' on' : '')}
+      aria-pressed={on}
+      aria-label={on ? '取消收藏' : '收藏題目'}
+      title={on ? '取消收藏' : '收藏題目，之後可以在「收藏」頁快速練習'}
+      onClick={() => void toggleFavorite(exerciseId)}
+    >
+      <Star className="ic" aria-hidden fill={on ? 'currentColor' : 'none'} />
+    </button>
+  );
 }
 
 function SolutionBox({ exercise, show, canReveal, onReveal, mode }: { exercise: Exercise; show: boolean; canReveal: boolean; onReveal: () => void; mode: PlaygroundMode }) {

@@ -15,7 +15,7 @@
 
 ```bash
 npm run dev        # vite (5173) + API server (8787)，用 concurrently 同時啟動
-npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 321 個測試
+npm test           # vitest：內容自檢 + 判題 + 排程 + 統計，目前 329 個測試
 npm run build      # tsc --noEmit && vite build
 npm run verify:mysql  # 開發用：在 MySQL 8 上執行每題的 MySQL 寫法並比對（需要 MYSQL_URL）
 ```
@@ -32,7 +32,7 @@ npm run verify:mysql  # 開發用：在 MySQL 8 上執行每題的 MySQL 寫法�
   - 修改資料的題目（DML/DDL）用 `checkQuery` 檢查最後的資料狀態。
 - **隱藏測資用來防止寫死答案**：例如 `shop` 資料集的隱藏資料有 UK 顧客 104、空分類 Bakery(7)、分類 8 Frozen 和 9 Pet Food、商品 104 Tea Biscuits。新增題目時要確認錯誤寫法在隱藏測資上會失敗。
 - **儲存**：Dexie（IndexedDB）是主要儲存，元件透過 `src/store/db.ts` 的 `useLive` 讀取。
-  - DB 版本 2 新增了 `notes` 表（重點筆記）。
+  - DB 版本 2 新增了 `notes` 表（重點筆記）；版本 3 新增 `favorites` 表（收藏的題目 id）。
   - 寫入函式集中在 `src/store/progress.ts`。
 - **雲端同步**（`src/store/cloud.ts`，選用）：
   - 登入後，把 `exportAll()` 的整份 JSON 當成快照，upsert 到 Supabase 的 `user_data` 表（schema 在 `supabase/schema.sql`，有 RLS）。
@@ -58,6 +58,9 @@ npm run verify:mysql  # 開發用：在 MySQL 8 上執行每題的 MySQL 寫法�
   - 和 PostgreSQL 寫法不同的題目，MySQL 解與差異說明集中在 `src/content/mysqlSolutions.ts`，由 `src/content/index.ts` 合併成 `Exercise.mysql` / `mysqlNote`；解答區有 PostgreSQL／MySQL 分頁（偏好記在 localStorage 的 `sqlpg.solutionDialect`）。
   - `src/lib/pgOnly.ts` 偵測 PostgreSQL 專屬語法，`tests/content.test.ts` 要求命中的題目一定要有 MySQL 寫法。偵測不到的差異（整數除法、NULL 排序、CONCAT 遇 NULL、日期 + 整數）靠下面的腳本抓。
   - `scripts/verify-mysql.ts`：把 PGlite 載入後的資料表倒進 MySQL，執行每題的 MySQL 寫法（沒有就用 PostgreSQL 解），用 `compareResults` 比對。新增或修改題目後如果環境有 MySQL 就跑一次。
+- **收藏**（`/favorites`，`src/pages/FavoritesPage.tsx`）：所有題目右上角都有星號（`FavoriteButton`）。收藏頁依課程順序分組，`/favorites/:id` 可上一題／下一題連續練。
+  - 題目來源用 `findExercise` / `allExerciseEntries`（`src/content/index.ts`）查。
+  - 收藏練習記成活動類型 `favorite`（算進學習紀錄），提交紀錄和原題共用（答對過會打勾），但不會完成章節、不影響複習與精熟進度。
 - **題型特訓**（`/drills`，`src/pages/DrillPages.tsx`）：LeetCode 經典題型（補零、相鄰列、關聯除法、比率、某時點的值、累計、重排、平手、字串、刪重複）。
   - 題型組在 `src/content/drills/patterns.ts`（`requires` 是前置章節，全部學完才開放；設定的「解鎖精熟」也會一併開放），題目在 `src/content/drills/problems.ts`，id 前綴 `d-`。
   - 每組有自己的小資料集（`src/content/datasets/drills.ts`，id 前綴 `dr-`），隱藏測資專門放陷阱；`tests/wrong-answers.test.ts` 列了每組要被判錯的寫法。
@@ -70,6 +73,8 @@ npm run verify:mysql  # 開發用：在 MySQL 8 上執行每題的 MySQL 寫法�
 - **複習排程**（`src/srs/schedule.ts`）：
   - 間隔是 [2, 6, 14, 29, 59] 天，也就是第 3／7／15／30／60 天。
   - 複習時「第一次提交」答錯，會從當天起重新排到第 3 天。
+  - 第一次提交答對要**必選熟悉度**（`ReviewRating`）：熟悉 `good` 照常升級；尚可 `ok` 不升級，從今天起用同一級的間隔再排一次（`anchor = 今天 − offsets[stage−1]`），連續尚可不設上限；不熟悉 `again` 和答錯一樣從頭開始，但活動紀錄仍算答對。
+  - 選了熟悉度才寫入排程；同一頁可以改選，會從「複習前的快照」重算（`rerateReview`），並更新同一筆活動的 `detail`。章節練習完成時不問熟悉度。
   - 要測試排程時，可以用 localStorage 的 `sqlpg.debugDayOffset` 模擬日期（設定頁的「模擬日期」）。
 - **重點筆記**（`src/components/Highlighter.tsx`）：
   - 用 CSS Custom Highlight API 標記文字，不改動 React 管理的 DOM。

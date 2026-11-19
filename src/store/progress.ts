@@ -114,3 +114,10 @@ export function useNotes(chapterId?: string): Note[] {
     ) ?? []
   );
 }
+
+/** 收藏／取消收藏題目 */
+export async function toggleFavorite(exerciseId: string) {
+  if (await db.favorites.get(exerciseId)) await db.favorites.delete(exerciseId);
+  else await db.favorites.put({ exerciseId, ts: Date.now() });
+}
+

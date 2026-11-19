@@ -69,6 +69,37 @@ export function reviewExercise(ch: Chapter, n: number): Exercise {
   return pool[((n % pool.length) + pool.length) % pool.length];
 }
 
+export type ExerciseSource = 'chapter' | 'mastery' | 'drill';
+
+export interface ExerciseEntry {
+  exercise: Exercise;
+  source: ExerciseSource;
+  /** 例如「第 5 章 · AND、OR、NOT」「精熟 · Medium」「題型特訓 · 補零」 */
+  groupLabel: string;
+  /** 題目在該組中的角色，例如「練習 2」「複習題」 */
+  role: string;
+}
+
+let entryCache: ExerciseEntry[] | null = null;
+/** 所有題目，依課程順序：章節（各練習、複習題）→ 精熟題 → 題型特訓 */
+export function allExerciseEntries(): ExerciseEntry[] {
+  if (entryCache) return entryCache;
+  const out: ExerciseEntry[] = [];
+  for (const c of chapters) {
+    const g = `第 ${c.order} 章 · ${c.title}`;
+    chapterPractices(c).forEach((e, i, arr) => out.push({ exercise: e, source: 'chapter', groupLabel: g, role: arr.length > 1 ? `練習 ${i + 1}` : '練習題' }));
+    out.push({ exercise: c.review, source: 'chapter', groupLabel: g, role: '複習題' });
+  }
+  for (const p of mastery) out.push({ exercise: p, source: 'mastery', groupLabel: `精熟挑戰 · ${p.difficulty}`, role: p.topic });
+  for (const d of drills) out.push({ exercise: d, source: 'drill', groupLabel: `題型特訓 · ${getPattern(d.patternId)?.title ?? ''}`, role: d.difficulty });
+  entryCache = out;
+  return out;
+}
+
+export function findExercise(id: string): ExerciseEntry | undefined {
+  return allExerciseEntries().find((e) => e.exercise.id === id);
+}
+
 export function getChapter(id: string): Chapter | undefined {
   return chapters.find((c) => c.id === id);
 }
